@@ -1,0 +1,8 @@
+from collections import namedtuple
+
+DataIngestionArtifact = namedtuple("DataIngestionArtifact", "data_ingested_file_path")
+
+DataValidationArtifact = namedtuple("DataValidationArtifact", "data_validated_file_path")
+
+DataTransformationArtifact = namedtuple("DataTransformationArtifact", ["train_file_path", "test_file_path", "pipeline_file_path"])
+
