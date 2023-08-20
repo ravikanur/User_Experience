@@ -1,6 +1,10 @@
 ##common
 ARTIFACT_DIR: str = 'user_exp_artifact'
 
+CONFIG_DIR: str = 'config'
+
+MODEL_CONFIG_DIR: str = 'model_config'
+
 ## data_ingestion
 DATA_S3_URL:str = ''
 
@@ -39,11 +43,11 @@ TRANSFORMED_DATA_DIR:str = 'data'
 
 TRANSFORMATION_OBJECT_DIR:str = 'object'
 
-TRAIN_FILE_NAME: str = 'train_user_df.csv'
+TRAIN_FILE_NAME: str = 'train_user_df.parquet'
 
-TEST_FILE_NAME: str = 'test_user_df.csv'
+TEST_FILE_NAME: str = 'test_user_df.parquet'
 
-VALID_FILE_NAME: str = 'valid_user_df.csv'
+VALID_FILE_NAME: str = 'valid_user_df.parquet'
 
 PIPELINE_FILE_NAME: str = 'data_transform_pipeline.pkl'
 
@@ -58,5 +62,30 @@ FEATURE_COLS_NAME: str = 'feature'
 
 ENCODED_TARGET_COL_NAME:str = 'label'
 
-FINAL_COLS: list = []
+## model_training
+MODEL_TRAINER_DIR: str = 'model_trainer'
+
+TRAINED_MODEL_DIR: str = 'trained_models'
+
+BASE_TRAINING_SCORE: float = 0.7
+
+# config yaml params
+MODEL_CONFIG: str  = 'model_config'
+
+MODEL: str = 'model'
+
+ # model yaml params
+MODEL_SELECTION: str = 'model_selection'
+
+MODEL_CLASS: str = 'class'
+
+MODEL_MODULE: str = 'module'
+
+MODEL_PARAMS: str = 'params'
+
+MODEL_FIT_PARAMS: str = 'fit_params'
+
+MODEL_FIT_PARAMS_VERBOSE: str = 'verbose'
+
+MODEL_FIT_PARAMS_EVAL_SET: str = 'eval_set'
 

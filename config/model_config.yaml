@@ -1,0 +1,8 @@
+model_selection:
+  model_0:
+    class: RandomForestClassifier
+    module: pyspark.ml.classification
+    params:
+      numTrees: 300
+      featuresCol: ''
+      labelCol: ''

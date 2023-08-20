@@ -4,10 +4,19 @@ from dataclasses import dataclass
 from from_root import from_root
 
 from src.constants.training_pipeline import *
+from src.utils.main_utils import read_yaml_file
 
 @dataclass
 class TrainingPipelineConfig:
     artifacr_dir_path = os.path.join(from_root(), ARTIFACT_DIR)
+
+    config_dir_path = os.path.join(from_root(), CONFIG_DIR)
+
+    model_config_dir_path = os.path.join(from_root(), MODEL_CONFIG_DIR)
+
+    config = read_yaml_file(config_dir_path)
+
+    model_config = read_yaml_file(model_config_dir_path)
 
 training_pipeline_config = TrainingPipelineConfig()
 
@@ -42,6 +51,32 @@ class DataTransformationConfig:
     test_file_path = os.path.join(datatransformation_dir_path, TRANSFORMED_DATA_DIR, TEST_FILE_NAME)
 
     pipeline_file_path = os.path.join(datatransformation_dir_path, TRANSFORMATION_OBJECT_DIR, PIPELINE_FILE_NAME)
+
+@dataclass
+class ModelTrainerConfig:
+    modeltrainer_dir_path = os.path.join(training_pipeline_config.artifacr_dir_path, MODEL_TRAINER_DIR)
+
+    os.makedirs(modeltrainer_dir_path, exist_ok=True)
+    
+    trainedmodel_dir_path = os.path.join(training_pipeline_config.artifacr_dir_path, TRAINED_MODEL_DIR)
+
+    os.makedirs(trainedmodel_dir_path, exist_ok=True)
+
+    _model_ref = training_pipeline_config.config[MODEL_CONFIG][MODEL]
+
+    model_module = training_pipeline_config.model_config[MODEL_SELECTION][_model_ref][MODEL_MODULE]
+
+    model_class = training_pipeline_config.model_config[MODEL_SELECTION][_model_ref][MODEL_CLASS]
+
+    model_params = training_pipeline_config.model_config[MODEL_SELECTION][_model_ref][MODEL_PARAMS]
+
+    model_fit_params = training_pipeline_config.model_config[MODEL_SELECTION][_model_ref][MODEL_FIT_PARAMS]
+
+
+
+
+
+
 
 
     

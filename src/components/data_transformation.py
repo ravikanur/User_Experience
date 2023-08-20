@@ -20,7 +20,7 @@ class DataTransformation:
 
         self.data_validation_artifact = data_validation_artifact
 
-    def transform_data(self, df: DataFrame, train_percentage:float):
+    def transform_data(self, train: DataFrame, test: DataFrame):
         try:
             logging.info("Entered transform_data method")
             stages = []
@@ -43,16 +43,49 @@ class DataTransformation:
             
             pipeline = Pipeline(stages=stages)
 
-            train, test = df.randomSplit([train_percentage, 1 - train_percentage])
-
             transformed = pipeline.fit(train)
-            transformed.save()
 
             train_transformed = transformed.transform(train)
 
             test_transformed = transformed.transform(test)
 
+            logging.info("transformation of train and test data done.")
+
             return train_transformed, test_transformed, transformed
+        except Exception as e:
+            logging.error(e)
+            raise UserException(e, sys)
+
+    def prepare_train_test_data(self, data: DataFrame, train_percentage:float, 
+                                categorical_cols: list)-> DataFrame:
+        try:
+            logging.info("Entered prepare_train_test_data method")
+            train, test = data.randomSplit([train_percentage, 1 - train_percentage], seed=42)
+
+            empty_rdd = spark_session.sparkContext.emptyRDD()
+
+            temp_df_1 = spark_session.createDataFrame(empty_rdd, schema=train.schema)
+
+            for column in categorical_cols:
+                cat_train_df = train.select(col(column))
+
+                cat_test_df = test.select(col(column))
+
+                df_diff = cat_test_df.subtract(cat_train_df).collect()
+
+                logging.info(f"column {column} in test dataset has {len(df_diff)} values not present in train dataset")
+
+                if len(df_diff) > 0:
+                    for row in df_diff:
+                        temp_df = test.where(col(column) == row[column]).dropDuplicates([column])
+                        temp_df_1 = temp_df_1.union(temp_df)
+            
+            if temp_df_1.count() > 0:
+                train = train.union(temp_df_1)
+
+            logging.info(f"train and test split done. train count is {train.count()}, test count is {test.count()}")
+            
+            return train, test
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
@@ -60,15 +93,17 @@ class DataTransformation:
     def initiate_data_transformation(self)-> DataTransformationArtifact:
         try:
             logging.info("Entered initiate_data_transformation method")
-            user_df = spark_session.read.csv(f"self.{data_validation_artifact.data_validated_file_path}*", header=True, inferSchema=True)
+            user_df = spark_session.read.csv(f"{self.data_validation_artifact.data_validated_file_path}*", header=True, inferSchema=True)
 
-            train, test, preprocessor = self.transform_data(user_df, 0.7)
+            train, test = self.prepare_train_test_data(user_df, 0.7, LABEL_FEATURES + [TARGET_COLUMN_NAME])
+
+            train, test, preprocessor = self.transform_data(train, test)
 
             train , test = train.select(*[FEATURE_COLS_NAME, ENCODED_TARGET_COL_NAME]), test.select(*[FEATURE_COLS_NAME, ENCODED_TARGET_COL_NAME])
 
-            train.write.csv(self.data_transformation_config.train_file_path)
+            train.write.mode('append').parquet(self.data_transformation_config.train_file_path)
 
-            test.write.csv(self.data_transformation_config.test_file_path)
+            test.write.mode('append').parquet(self.data_transformation_config.test_file_path)
 
             preprocessor.save(self.data_transformation_config.pipeline_file_path)
 
