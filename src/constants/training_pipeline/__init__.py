@@ -1,9 +1,13 @@
 ##common
 ARTIFACT_DIR: str = 'user_exp_artifact'
 
+MODEL_DIR: str = 'model'
+
 CONFIG_DIR: str = 'config'
 
-MODEL_CONFIG_DIR: str = 'model_config'
+CONFIG_FILE: str = 'config.yaml'
+
+MODEL_CONFIG_FILE: str ='model_config.yaml'
 
 ## data_ingestion
 DATA_S3_URL:str = ''
@@ -81,6 +85,8 @@ MODEL_CLASS: str = 'class'
 
 MODEL_MODULE: str = 'module'
 
+MODEL_LOADER: str = 'loader'
+
 MODEL_PARAMS: str = 'params'
 
 MODEL_FIT_PARAMS: str = 'fit_params'
@@ -89,3 +95,12 @@ MODEL_FIT_PARAMS_VERBOSE: str = 'verbose'
 
 MODEL_FIT_PARAMS_EVAL_SET: str = 'eval_set'
 
+# model evaluation parameters
+
+METRICS_DIR_NAME: str = 'metrics'
+
+BEST_MODEL_DIR_NAME: str = 'best_model'
+
+METRICS_FILE_NAME: str = 'metrics.yaml'
+
+TEST_PRED_FILE_NAME: str = 'User_test_pred.csv'

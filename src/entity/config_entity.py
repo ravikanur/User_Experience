@@ -10,13 +10,19 @@ from src.utils.main_utils import read_yaml_file
 class TrainingPipelineConfig:
     artifacr_dir_path = os.path.join(from_root(), ARTIFACT_DIR)
 
-    config_dir_path = os.path.join(from_root(), CONFIG_DIR)
+    os.makedirs(artifacr_dir_path, exist_ok=True)
 
-    model_config_dir_path = os.path.join(from_root(), MODEL_CONFIG_DIR)
+    model_dir_path = os.path.join(from_root(), MODEL_DIR)
 
-    config = read_yaml_file(config_dir_path)
+    os.makedirs(model_dir_path, exist_ok=True)
 
-    model_config = read_yaml_file(model_config_dir_path)
+    config_file_path = os.path.join(from_root(), CONFIG_DIR, CONFIG_FILE)
+
+    model_config_file_path = os.path.join(from_root(), CONFIG_DIR, MODEL_CONFIG_FILE)
+
+    config = read_yaml_file(config_file_path)
+
+    model_config = read_yaml_file(model_config_file_path)
 
 training_pipeline_config = TrainingPipelineConfig()
 
@@ -54,11 +60,11 @@ class DataTransformationConfig:
 
 @dataclass
 class ModelTrainerConfig:
-    modeltrainer_dir_path = os.path.join(training_pipeline_config.artifacr_dir_path, MODEL_TRAINER_DIR)
+    #modeltrainer_dir_path = os.path.join(training_pipeline_config.artifacr_dir_path, MODEL_TRAINER_DIR)
 
-    os.makedirs(modeltrainer_dir_path, exist_ok=True)
+    #os.makedirs(modeltrainer_dir_path, exist_ok=True)
     
-    trainedmodel_dir_path = os.path.join(training_pipeline_config.artifacr_dir_path, TRAINED_MODEL_DIR)
+    trainedmodel_dir_path = os.path.join(training_pipeline_config.model_dir_path, TRAINED_MODEL_DIR)
 
     os.makedirs(trainedmodel_dir_path, exist_ok=True)
 
@@ -70,7 +76,24 @@ class ModelTrainerConfig:
 
     model_params = training_pipeline_config.model_config[MODEL_SELECTION][_model_ref][MODEL_PARAMS]
 
-    model_fit_params = training_pipeline_config.model_config[MODEL_SELECTION][_model_ref][MODEL_FIT_PARAMS]
+    model_loader_class = training_pipeline_config.model_config[MODEL_SELECTION][_model_ref][MODEL_LOADER]
+
+    #model_fit_params = training_pipeline_config.model_config[MODEL_SELECTION][_model_ref][MODEL_FIT_PARAMS]
+
+@dataclass
+class ModelEvaluatorConfig:
+    bestmodel_dir_path = os.path.join(training_pipeline_config.model_dir_path, BEST_MODEL_DIR_NAME)
+
+    os.makedirs(bestmodel_dir_path, exist_ok=True)
+
+    metric_dir_path = os.path.join(training_pipeline_config.model_dir_path, METRICS_DIR_NAME)
+
+    os.makedirs(metric_dir_path, exist_ok=True)
+
+    metric_file_path = os.path.join(metric_dir_path, METRICS_FILE_NAME)
+
+
+    
 
 
 

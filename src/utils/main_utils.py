@@ -13,7 +13,7 @@ def read_yaml_file(path: str) -> dict:
         logging.error(e)
         raise UserException(e,sys) from e
 
-def write_yaml_file(path: str, filename: str):
+def write_yaml_file(path: str, filename: dict):
     try:
         logging.info("Entering write_yaml_file function")
         os.makedirs(os.path.dirname(path), exist_ok=True)

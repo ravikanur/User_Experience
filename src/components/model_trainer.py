@@ -1,6 +1,7 @@
-import sys, importlib
+import os, sys, importlib
 
 from pyspark.sql import DataFrame
+from pyspark.ml.pipeline import Pipeline, PipelineModel
 
 from src.config.spark_manager import spark_session
 from src.entity.config_entity import ModelTrainerConfig
@@ -43,9 +44,29 @@ class ModelTrainer:
     def train_model(self, model, train_data: DataFrame):
         try:
             logging.info("Entered train_model method")
-            trained_model =  model.fit(train_data)
+            stages = []
 
+            stages.append(model)
+
+            pipeline = Pipeline(stages=stages)
+
+            trained_model =  pipeline.fit(train_data)
+            
             return trained_model
+        except Exception as e:
+            logging.error(e)
+            raise UserException(e, sys)
+
+    def save_model(self, model, trained_model_dir_path):
+        try:
+            logging.info("Entered save_model method")
+            trained_model_name = self.model_trainer_config.model_class
+            
+            trained_model_path = os.path.join(trained_model_dir_path, f"{trained_model_name}.pkl")
+
+            model.save(trained_model_path)
+
+            logging.info(f"trained model saved to {trained_model_path}")
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
@@ -57,12 +78,15 @@ class ModelTrainer:
 
             model = self.get_class_from_name(self.model_trainer_config.model_module, 
                                             self.model_trainer_config.model_class)
+
+            model_loader = self.get_class_from_name(self.model_trainer_config.model_module, 
+                                            self.model_trainer_config.model_loader_class)
             
             model = self.update_model_params(model, **self.model_trainer_config.model_params)
 
             trained_model = self.train_model(model, train)
 
-            trained_model.save(self.model_trainer_config.trainedmodel_dir_path)
+            self.save_model(trained_model, self.model_trainer_config.trainedmodel_dir_path)
 
             logging.info(f"trained model saved to {self.model_trainer_config.trainedmodel_dir_path}")
 
@@ -70,4 +94,14 @@ class ModelTrainer:
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
+
+
+if __name__ == '__main__':
+    dta = DataTransformationArtifact("./user_exp_artifact/data_transformation/data/train_user_df.parquet", 
+                                    "./user_exp_artifact/data_transformation/data/train_user_df.parquet", 
+                                    "./user_exp_artifact/data_transformation/object/data_transform_pipeline.pkl")
+    mtc = ModelTrainerConfig()
+    mt = ModelTrainer(mtc, dta)
+    mtc = mt.initiate_model_training()
+
 
