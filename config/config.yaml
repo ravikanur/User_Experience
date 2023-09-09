@@ -1,0 +1,9 @@
+train_test_split_config:
+  train_percentage: 0.8
+  test_percentage: 0.2
+  val_percentage: 0.0
+  is_val: False
+
+model_config:
+  model: model_0
+  is_val: False
