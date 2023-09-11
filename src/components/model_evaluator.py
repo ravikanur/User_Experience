@@ -77,7 +77,7 @@ class ModelEvaluator:
 
             eval_report = model_eval_response.to_dict()
 
-            eval_report = {key : value, for key, value in eval_report.items() if key not in [trained_model_pred, best_model_pred]}
+            eval_report = {key : value for key, value in eval_report.items() if key not in [trained_model_pred, best_model_pred]}
 
             write_yaml_file(self.model_evaluator_config.metric_file_path, eval_report)
 
