@@ -57,8 +57,6 @@ class ModelPusher:
             self.backup_existing_model(best_model_dir_path, trained_model_dir_path)
 
             shutil.copytree(trained_model_path, best_model_dir_path, ignore_dangling_symlinks=True)
-
-            logging.info("Done pushing new model")
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
