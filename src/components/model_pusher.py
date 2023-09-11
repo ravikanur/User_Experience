@@ -32,15 +32,15 @@ class ModelPusher:
             else:
                 model = os.listdir(curr_dir_path)[0]
 
-                new_model = f"{model}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+                new_model = f"{model}_{datetime.now().strftime('%Y%m%d%H%M%S')}.pkl"
 
                 new_model_path = os.path.join(curr_dir_path, new_model)
 
                 os.rename(os.path.join(curr_dir_path, model), new_model_path)
 
-                shutil.copytree(os.path.join(curr_dir_path, model), dest_dir_path)
+                shutil.copytree(new_model_path, dest_dir_path)
 
-                return
+                return new_model_path
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
@@ -54,7 +54,7 @@ class ModelPusher:
 
             best_model_dir_path = self.model_evaluator_config.bestmodel_dir_path
 
-            self.backup_existing_model(best_model_dir_path, trained_model_dir_path)
+            new_model_path = self.backup_existing_model(best_model_dir_path, trained_model_dir_path)
 
             shutil.copytree(trained_model_path, best_model_dir_path, ignore_dangling_symlinks=True)
         except Exception as e:
