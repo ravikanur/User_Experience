@@ -18,9 +18,9 @@ class ModelEvaluator:
     def __init__(self, model_evaluator_config: ModelEvaluatorConfig, 
                 model_trainer_artifact: ModelTrainerArtifact, 
                 data_transformation_artifact: DataTransformationArtifact):
-        self.model_evaluator_config = ModelEvaluatorConfig
+        self.model_evaluator_config = model_evaluator_config
 
-        self.model_trainer_artifact = ModelTrainerArtifact
+        self.model_trainer_artifact = model_trainer_artifact
 
         self.data_transformation_artifact = data_transformation_artifact
 

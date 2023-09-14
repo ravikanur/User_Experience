@@ -60,9 +60,9 @@ class ModelTrainer:
     def save_model(self, model, trained_model_dir_path):
         try:
             logging.info("Entered save_model method")
-            trained_model_name = self.model_trainer_config.model_class
+            #trained_model_name = self.model_trainer_config.model_class
             
-            trained_model_path = os.path.join(trained_model_dir_path, f"{trained_model_name}.pkl")
+            trained_model_path = os.path.join(trained_model_dir_path, TRAINED_MODEL_NAME)
 
             model.save(trained_model_path)
 

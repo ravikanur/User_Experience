@@ -80,7 +80,7 @@ class TrainingPipeline:
             logging.error(e)
             raise UserException(e, sys)
 
-    def initiate_model_pusher(self, model_evaluation_config: ModelEvaluationConfig, 
+    def initiate_model_pusher(self, model_evaluation_config: ModelEvaluatorConfig, 
                             model_trainer_config: ModelTrainerConfig,
                             model_trainer_artifact: ModelTrainerArtifact):
         try:
@@ -117,3 +117,8 @@ class TrainingPipeline:
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
+
+if __name__ == "__main__":
+    tpc = TrainingPipelineConfig()
+    tp = TrainingPipeline(tpc)
+    tp.initiate_training_pipeline()
