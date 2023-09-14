@@ -32,9 +32,7 @@ class ModelPusher:
             else:
                 model = os.listdir(curr_dir_path)[0]
 
-                model = model.split(sep="_", maxsplit=1)[1]
-
-                new_model = f"{model}_{datetime.now().strftime('%Y%m%d%H%M%S')}.pkl"
+                new_model = f"{model}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
 
                 new_model_path = os.path.join(curr_dir_path, new_model)
 

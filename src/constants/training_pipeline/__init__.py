@@ -71,7 +71,7 @@ MODEL_TRAINER_DIR: str = 'model_trainer'
 
 TRAINED_MODEL_DIR: str = 'trained_models'
 
-TRAINED_MODEL_NAME: str = 'Trained_UE_model'
+TRAINED_MODEL_NAME: str = 'UE_model'
 
 BASE_TRAINING_SCORE: float = 0.7
 
