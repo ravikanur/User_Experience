@@ -48,7 +48,7 @@ class ModelPusher:
     def initiate_model_pushing(self):
         try:
             logging.info("Entered initiate_model_pushing method")
-            trained_model_dir_path = self.model_trainer_config.trainedmodel_dir_path
+            trained_model_dir_path = self.model_trainer_config.modeltrainer_dir_path
 
             trained_model_path = self.model_trainer_artifact.trainedmodel_dir_path
 
@@ -56,7 +56,7 @@ class ModelPusher:
 
             new_model_path = self.backup_existing_model(best_model_dir_path, trained_model_dir_path)
 
-            shutil.copytree(trained_model_path, best_model_dir_path, ignore_dangling_symlinks=True)
+            shutil.copytree(trained_model_dir_path, best_model_dir_path, dirs_exist_ok=True)
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)

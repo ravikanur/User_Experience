@@ -13,7 +13,7 @@ def calculate_classification_metric(model, test_data: DataFrame, labelCol: str, 
 
         ev = BinaryClassificationEvaluator(labelCol= labelCol)
 
-        if params != None:
+        if metric_name != None:
             ev.setMetricName(metric_name)
         acc = ev.evaluate(pred)
 

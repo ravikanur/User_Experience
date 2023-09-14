@@ -60,9 +60,9 @@ class DataTransformationConfig:
 
 @dataclass
 class ModelTrainerConfig:
-    #modeltrainer_dir_path = os.path.join(training_pipeline_config.artifacr_dir_path, MODEL_TRAINER_DIR)
+    modeltrainer_dir_path = os.path.join(training_pipeline_config.artifacr_dir_path, MODEL_TRAINER_DIR)
 
-    #os.makedirs(modeltrainer_dir_path, exist_ok=True)
+    os.makedirs(modeltrainer_dir_path, exist_ok=True)
     
     trainedmodel_dir_path = os.path.join(training_pipeline_config.model_dir_path, TRAINED_MODEL_DIR)
 

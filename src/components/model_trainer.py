@@ -67,6 +67,8 @@ class ModelTrainer:
             model.save(trained_model_path)
 
             logging.info(f"trained model saved to {trained_model_path}")
+
+            return trained_model_path
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
@@ -86,11 +88,11 @@ class ModelTrainer:
 
             trained_model = self.train_model(model, train)
 
-            self.save_model(trained_model, self.model_trainer_config.trainedmodel_dir_path)
+            trained_model_path = self.save_model(trained_model, self.model_trainer_config.modeltrainer_dir_path)
 
-            logging.info(f"trained model saved to {self.model_trainer_config.trainedmodel_dir_path}")
+            logging.info(f"trained model saved to {trained_model_path}")
 
-            return ModelTrainerArtifact(self.model_trainer_config.trainedmodel_dir_path)
+            return ModelTrainerArtifact(trained_model_path)
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)

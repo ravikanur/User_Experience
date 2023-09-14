@@ -50,7 +50,7 @@ class ModelEvaluator:
 
             best_model_acc, best_model_pred = None, None
 
-            best_model = self.get_best_model(self.model_evaluator_config.best_model_path)
+            best_model = self.get_best_model(self.model_evaluator_config.bestmodel_dir_path)
 
             is_accepted = False
 
@@ -59,6 +59,8 @@ class ModelEvaluator:
 
                 if best_model_acc < trained_model_acc:
                     is_accepted = True
+            else:
+                is_accepted = True
 
             return ModelEvaluationResponse(is_accepted, best_model_acc, trained_model_acc, best_model_pred, trained_model_pred)
 
@@ -75,9 +77,9 @@ class ModelEvaluator:
 
             model_eval_response = self.evaluate_model(model, test_df)
 
-            eval_report = model_eval_response.to_dict()
+            eval_report = model_eval_response._asdict()
 
-            eval_report = {key : value for key, value in eval_report.items() if key not in [trained_model_pred, best_model_pred]}
+            eval_report = {key : value for key, value in eval_report.items() if key not in ['trained_model_pred', 'best_model_pred']}
 
             write_yaml_file(self.model_evaluator_config.metric_file_path, eval_report)
 
