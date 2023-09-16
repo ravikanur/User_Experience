@@ -78,6 +78,8 @@ class ModelTrainer:
             logging.info("Entered initiate_model_training method")
             train = spark_session.read.parquet(f"{self.data_transformation_artifact.train_file_path}*")
 
+            transformation_pipeline = PipelineModel.load(f"{self.data_transformation_artifact.pipeline_file_path}*")
+
             model = self.get_class_from_name(self.model_trainer_config.model_module, 
                                             self.model_trainer_config.model_class)
 
@@ -87,6 +89,10 @@ class ModelTrainer:
             model = self.update_model_params(model, **self.model_trainer_config.model_params)
 
             trained_model = self.train_model(model, train)
+
+            new_stage = transformation_pipeline.stages + trained_model.stages
+
+            trained_model.stages = new_stage
 
             trained_model_path = self.save_model(trained_model, self.model_trainer_config.modeltrainer_dir_path)
 

@@ -20,7 +20,7 @@ class DataTransformation:
 
         self.data_validation_artifact = data_validation_artifact
 
-    def transform_data(self, train: DataFrame, test: DataFrame):
+    def transform_data(self, train: DataFrame):
         try:
             logging.info("Entered transform_data method")
             stages = []
@@ -47,11 +47,11 @@ class DataTransformation:
 
             train_transformed = transformed.transform(train)
 
-            test_transformed = transformed.transform(test)
+            #test_transformed = transformed.transform(test)
 
             logging.info("transformation of train and test data done.")
 
-            return train_transformed, test_transformed, transformed
+            return train_transformed, transformed
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
@@ -97,11 +97,11 @@ class DataTransformation:
 
             train, test = self.prepare_train_test_data(user_df, 0.7, LABEL_FEATURES + [TARGET_COLUMN_NAME])
 
-            train, test, preprocessor = self.transform_data(train, test)
+            train_transformed, preprocessor = self.transform_data(train)
 
-            train , test = train.select(*[FEATURE_COLS_NAME, ENCODED_TARGET_COL_NAME]), test.select(*[FEATURE_COLS_NAME, ENCODED_TARGET_COL_NAME])
+            train_transformed = train_transformed.select(*[FEATURE_COLS_NAME, ENCODED_TARGET_COL_NAME])
 
-            train.write.mode('append').parquet(self.data_transformation_config.train_file_path)
+            train_transformed.write.mode('append').parquet(self.data_transformation_config.train_file_path)
 
             test.write.mode('append').parquet(self.data_transformation_config.test_file_path)
 
