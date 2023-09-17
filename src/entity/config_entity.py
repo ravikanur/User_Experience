@@ -96,7 +96,7 @@ class ModelEvaluatorConfig:
 class ModelPusherConfig:
     trainedmodels_dir_path = os.path.join(training_pipeline_config.model_dir_path, TRAINED_MODELS_DIR)
 
-    os.makedirs(trainedmodel_dir_path, exist_ok=True)
+    os.makedirs(trainedmodels_dir_path, exist_ok=True)
 
 
     
