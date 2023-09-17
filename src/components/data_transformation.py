@@ -101,11 +101,11 @@ class DataTransformation:
 
             train_transformed = train_transformed.select(*[FEATURE_COLS_NAME, ENCODED_TARGET_COL_NAME])
 
-            train_transformed.write.mode('append').parquet(self.data_transformation_config.train_file_path)
+            train_transformed.write.mode('overwrite').parquet(self.data_transformation_config.train_file_path)
 
-            test.write.mode('append').parquet(self.data_transformation_config.test_file_path)
+            test.write.mode('overwrite').parquet(self.data_transformation_config.test_file_path)
 
-            preprocessor.save(self.data_transformation_config.pipeline_file_path)
+            preprocessor.write().overwrite().save(self.data_transformation_config.pipeline_file_path)
 
             logging.info(f"processed and saved train to {self.data_transformation_config.train_file_path}\n\
                         test to {self.data_transformation_config.test_file_path}\n\

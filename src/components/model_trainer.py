@@ -64,7 +64,7 @@ class ModelTrainer:
             
             trained_model_path = os.path.join(trained_model_dir_path, TRAINED_MODEL_NAME)
 
-            model.save(trained_model_path)
+            model.write().overwrite().save(trained_model_path)
 
             logging.info(f"trained model saved to {trained_model_path}")
 

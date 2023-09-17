@@ -106,3 +106,9 @@ BEST_MODEL_DIR_NAME: str = 'best_model'
 METRICS_FILE_NAME: str = 'metrics.yaml'
 
 TEST_PRED_FILE_NAME: str = 'User_test_pred.csv'
+
+THRESHOLD_SCORE: float = 0.85
+
+# model pusher parameters
+
+TRAINED_MODELS_DIR: str = 'trained_models'

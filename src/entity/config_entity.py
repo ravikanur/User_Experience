@@ -92,6 +92,12 @@ class ModelEvaluatorConfig:
 
     metric_file_path = os.path.join(metric_dir_path, METRICS_FILE_NAME)
 
+@dataclass
+class ModelPusherConfig:
+    trainedmodels_dir_path = os.path.join(training_pipeline_config.model_dir_path, TRAINED_MODELS_DIR)
+
+    os.makedirs(trainedmodel_dir_path, exist_ok=True)
+
 
     
 
