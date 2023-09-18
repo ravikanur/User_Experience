@@ -60,7 +60,8 @@ class DataTransformation:
                                 categorical_cols: list)-> DataFrame:
         try:
             logging.info("Entered prepare_train_test_data method")
-            train, test = data.randomSplit([train_percentage, 1 - train_percentage], seed=42)
+            #train, test = data.randomSplit([train_percentage, 1 - train_percentage], seed=42)
+            train, test = data.randomSplit([train_percentage, 1 - train_percentage])
 
             empty_rdd = spark_session.sparkContext.emptyRDD()
 
