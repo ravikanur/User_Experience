@@ -1,7 +1,10 @@
 import os, sys
 
+from pyspark.sql import dataframe
+from pyspark.sql.functions import lit
 from src.config.spark_manager import spark_session
 from src.constants.prediction_pipeline import *
+from src.constants.training_pipeline import *
 from src.components.data_validation import DataValidation
 
 from src.logger import logging
@@ -21,12 +24,14 @@ class PredictionPipeline:
 
             valid_files, invalid_files = [], []
 
-            for user in user_list:
+            for i, user in enumerate(user_list):
                 user_path = os.path.join(INPUT_DIR, user)
 
-                temp_df = self.read_data(user_path)
+                user_name = user.split(sep='.')[0]
 
-                cols = temp_df.column
+                temp_df: dataframe = spark_session.read.csv(path, inferSchema=True, header=True)
+
+                cols = temp_df.columns
 
                 no_col_list = [col for col in REQUIRED_COLUMNS if col not in cols]
 
@@ -34,9 +39,12 @@ class PredictionPipeline:
                     invalid_files.append(user)
                 else:
                     valid_files.append(user)
-            
-                
-
+                    temp_df = temp_df.withColumn(USER_COLUMN_NAME, lit(user_name))
+                    if i == 0:
+                        final_df = temp_df
+                    else:
+                        final_df = final_df.union(temp_df)
+            return valid_files, invalid_files, final_df
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
