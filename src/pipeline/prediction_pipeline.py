@@ -39,6 +39,7 @@ class PredictionPipeline:
                     invalid_files.append(user)
                 else:
                     valid_files.append(user)
+                    
                     temp_df = temp_df.withColumn(USER_COLUMN_NAME, lit(user_name))
                     if i == 0:
                         final_df = temp_df
