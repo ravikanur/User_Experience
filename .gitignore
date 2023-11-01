@@ -169,3 +169,5 @@ user_exp_artifact/
 user_downloaded_data/
 test/
 model/
+input/
+output/
