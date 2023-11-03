@@ -20,6 +20,28 @@ class DataTransformation:
 
         self.data_validation_artifact = data_validation_artifact
 
+    def encode_target_data(self, data: DataFrame, inputcol: str, outputcol:str) -> DataFrame:
+        try:
+            logging.info("Entered encode_target_data method")
+            string_indexer = StringIndexer(inputCol=inputcol, outputCol=outputcol)
+
+            string_indexer.fit(data)
+
+            res_df = string_indexer.transform(data)
+
+            return res_df
+        except Exception as e:
+            logging.error(e)
+            raise UserException(e, sys)
+
+    def write_target_mapping(self, data: DataFrame, key_col:str, val_col:str):
+        try:
+            logging.info("Entered write_traget_mapping method")
+            map_df = data.select(*[key_col, val_col])
+        except Exception as e:
+            logging.error(e)
+            raise UserException(e, sys)
+
     def transform_data(self, train: DataFrame):
         try:
             logging.info("Entered transform_data method")
@@ -37,9 +59,9 @@ class DataTransformation:
             
             stages.append(scalar)
             
-            string_indexer3 = StringIndexer(inputCol=TARGET_COLUMN_NAME, outputCol=ENCODED_TARGET_COL_NAME)
+            #string_indexer3 = StringIndexer(inputCol=TARGET_COLUMN_NAME, outputCol=ENCODED_TARGET_COL_NAME)
             
-            stages.append(string_indexer3)
+            #stages.append(string_indexer3)
             
             pipeline = Pipeline(stages=stages)
 
