@@ -55,6 +55,8 @@ VALID_FILE_NAME: str = 'valid_user_df.parquet'
 
 PIPELINE_FILE_NAME: str = 'data_transform_pipeline.pkl'
 
+TARGET_MAPPING_FILE_NAME: str = 'target_column_mapping.yaml'
+
 LABEL_FEATURES:list = ['specifictime']
 
 SCALAR_FEATURES: list = ['indicator1', 'indicator2', 'indicator3', 'indicator4', 'indicator5', 

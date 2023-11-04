@@ -58,6 +58,8 @@ class DataTransformationConfig:
 
     pipeline_file_path = os.path.join(datatransformation_dir_path, TRANSFORMATION_OBJECT_DIR, PIPELINE_FILE_NAME)
 
+    target_mapping_file_path = os.path.join(CONFIG_DIR, TARGET_MAPPING_FILE_NAME)
+
 @dataclass
 class ModelTrainerConfig:
     modeltrainer_dir_path = os.path.join(training_pipeline_config.artifacr_dir_path, MODEL_TRAINER_DIR)

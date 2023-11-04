@@ -10,6 +10,8 @@ from src.entity.config_entity import DataTransformationConfig
 from src.entity.artifact_entity import DataValidationArtifact, DataTransformationArtifact
 from src.constants.training_pipeline import *
 
+from src.utils.main_utils import write_yaml_file
+
 from src.logger import logging
 from src.exception import UserException
 
@@ -37,7 +39,16 @@ class DataTransformation:
     def write_target_mapping(self, data: DataFrame, key_col:str, val_col:str):
         try:
             logging.info("Entered write_traget_mapping method")
-            map_df = data.select(*[key_col, val_col])
+            map_df_list = data.select(*[key_col, val_col]).dropDuplicates().collect()
+
+            pair = {}
+
+            for df_row in map_df_list:
+                pair[df_row[0]] = df_row[1]
+            
+            write_yaml_file(self.data_transformation_config.target_mapping_file_path, pair)
+
+            logging.info(f"target column mapping has been written in path: {self.data_transformation_config.target_mapping_file_path}")
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
@@ -117,6 +128,10 @@ class DataTransformation:
         try:
             logging.info("Entered initiate_data_transformation method")
             user_df = spark_session.read.csv(f"{self.data_validation_artifact.data_validated_file_path}*", header=True, inferSchema=True)
+
+            user_df = self.encode_target_data(user_df, TARGET_COLUMN_NAME, ENCODED_TARGET_COL_NAME)
+
+            self.write_target_mapping(user_df, ENCODED_TARGET_COL_NAME, TARGET_COLUMN_NAME)
 
             train, test = self.prepare_train_test_data(user_df, 0.7, LABEL_FEATURES + [TARGET_COLUMN_NAME])
 
