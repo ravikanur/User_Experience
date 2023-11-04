@@ -8,6 +8,8 @@ from src.constants.prediction_pipeline import *
 from src.constants.training_pipeline import *
 from src.components.data_validation import add_mean_indicator_col_per_user
 
+from src.utils.main_utils import read_yaml_file
+
 from src.logger import logging
 from src.exception import UserException
 
@@ -64,11 +66,13 @@ class PredictionPipeline:
 
             final_df = final_df.drop(*COLS_TO_BE_REMOVED)
 
-            final_df = final_df.withColumn(TARGET_COLUMN_NAME, lit('UBE'))
+            #final_df = final_df.withColumn(TARGET_COLUMN_NAME, lit('UBE'))
 
             model = PipelineModel.load(PRED_MODEL_PATH)
 
             pred = model.transform(final_df)
+
+            target_mapping = read_yaml_file(TARGET_MAPPING_FILE_PATH)
 
             pred.write.mode('append').parquet('./output/pred.parquet')
         except Exception as e:

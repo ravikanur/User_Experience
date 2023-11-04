@@ -27,9 +27,7 @@ class DataTransformation:
             logging.info("Entered encode_target_data method")
             string_indexer = StringIndexer(inputCol=inputcol, outputCol=outputcol)
 
-            string_indexer.fit(data)
-
-            res_df = string_indexer.transform(data)
+            res_df = string_indexer.fit(data).transform(data)
 
             return res_df
         except Exception as e:
