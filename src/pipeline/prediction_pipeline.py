@@ -25,12 +25,16 @@ class PredictionPipeline:
             logging.info("Entered get_valid_invalid_files method")
             user_list = os.listdir(INPUT_DIR)
 
+            user_name_list = []
+
             valid_files, invalid_files = [], []
 
             for i, user in enumerate(user_list):
                 user_path = os.path.join(INPUT_DIR, user)
 
                 user_name = user.split(sep='.')[0]
+
+                user_name_list.append(user_name)
 
                 temp_df: dataframe = spark_session.read.csv(user_path, inferSchema=True, header=True)
 
@@ -48,14 +52,14 @@ class PredictionPipeline:
                         final_df = temp_df
                     else:
                         final_df = final_df.union(temp_df)
-            return valid_files, invalid_files, final_df
+            return valid_files, invalid_files, final_df, user_name_list
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
     def initiate_batch_prediction(self):
         try:
             logging.info("Entered initiate_batch_prediction method")
-            valid_files, invalid_files, final_df = self.get_valid_invalid_files()
+            valid_files, invalid_files, final_df, user_name_list = self.get_valid_invalid_files()
 
             for column in INDICATOR_COLS:
                 final_df = final_df.filter(col(column) < INDICATOR_THRESHOLD)
@@ -70,11 +74,33 @@ class PredictionPipeline:
 
             model = PipelineModel.load(PRED_MODEL_PATH)
 
-            pred = model.transform(final_df)
+            for i, user_name in enumerate(user_name_list):
+                temp_df = final_df.filter(col(USER_COLUMN_NAME) == user_name)
 
-            target_mapping = read_yaml_file(TARGET_MAPPING_FILE_PATH)
+                pred = model.transform(temp_df)
 
-            pred.write.mode('append').parquet('./output/pred.parquet')
+                target_mapping = read_yaml_file(TARGET_MAPPING_FILE_PATH)
+
+                pred1 = pred.select('prediction').rdd.map(lambda x: (target_mapping[x.prediction], )).toDF(['prediction', ])
+
+                #pred1 = pred1.dropDuplicates()
+                pred1 = pred1.groupBy('prediction').count().sort(pred1.prediction.desc())
+
+                if pred1.count() > 1:
+                    pred1 = pred1.filter(pred1.prediction == pred1.first()[0]).select('prediction')
+                elif pred1.count() == 1:
+                    pred1 = pred1.select('prediction')
+                else:
+                    pass
+
+                pred1 = pred1.withColumn(USER_COLUMN_NAME, lit(user_name))
+                if i == 0:
+                    pred_df = pred1
+                else:
+                    pred_df = pred_df.union(pred1)
+
+            #pred1.write.mode('append').parquet('./output/pred.parquet')
+            pred_df.write.mode('append').csv('./output/pred.csv', header=True)
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)

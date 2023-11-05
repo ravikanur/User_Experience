@@ -2,7 +2,7 @@ import os, sys
 
 from src.entity.config_entity import (DataIngestionConfig, DataValidationConfig, 
                                     DataTransformationConfig, ModelTrainerConfig,
-                                    ModelEvaluatorConfig, TrainingPipelineConfig)
+                                    ModelEvaluatorConfig, ModelPusherConfig, TrainingPipelineConfig)
 from src.entity.artifact_entity import (DataIngestionArtifact, DataValidationArtifact,
                                     DataTransformationArtifact, ModelTrainerArtifact,
                                     ModelEvaluatorArtifact)
@@ -113,7 +113,8 @@ class TrainingPipeline:
             if model_evaluator_artifact.is_accepted == False:
                 raise Exception("Trained model is not accepted")
             
-            self.initiate_model_pusher(model_evaluation_config, model_trainer_config, model_trainer_artifact)
+            model_pusher_config = ModelPusherConfig()
+            self.initiate_model_pusher(model_evaluation_config, model_pusher_config, model_trainer_config)
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
