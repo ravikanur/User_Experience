@@ -100,7 +100,7 @@ class PredictionPipeline:
                     pred_df = pred_df.union(pred1)
 
             #pred1.write.mode('append').parquet('./output/pred.parquet')
-            pred_df.write.mode('append').csv('./output/pred.csv', header=True)
+            pred_df.coalesce(1).write.mode('append').csv('./output/pred.csv', header=True)
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
