@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, time
 
 from pyspark.sql import dataframe
 from pyspark.sql.functions import lit, col
@@ -59,6 +59,7 @@ class PredictionPipeline:
     def initiate_batch_prediction(self):
         try:
             logging.info("Entered initiate_batch_prediction method")
+            start_time = time.time()
             valid_files, invalid_files, final_df, user_name_list = self.get_valid_invalid_files()
 
             for column in INDICATOR_COLS:
@@ -84,7 +85,7 @@ class PredictionPipeline:
                 pred1 = pred.select('prediction').rdd.map(lambda x: (target_mapping[x.prediction], )).toDF(['prediction', ])
 
                 #pred1 = pred1.dropDuplicates()
-                pred1 = pred1.groupBy('prediction').count().sort(pred1.prediction.desc())
+                pred1 = pred1.groupBy('prediction').count().sort(col('count').desc())
 
                 if pred1.count() > 1:
                     pred1 = pred1.filter(pred1.prediction == pred1.first()[0]).select('prediction')
@@ -99,8 +100,10 @@ class PredictionPipeline:
                 else:
                     pred_df = pred_df.union(pred1)
 
+            end_time = time.time()
             #pred1.write.mode('append').parquet('./output/pred.parquet')
             pred_df.coalesce(1).write.mode('append').csv('./output/pred.csv', header=True)
+            logging.info(f"Total prediction time took to predict {i} users is {round((end_time - start_time), 2)}")
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
