@@ -18,26 +18,30 @@ class ModelEvaluator:
     def __init__(self, model_evaluator_config: ModelEvaluatorConfig, 
                 model_trainer_artifact: ModelTrainerArtifact, 
                 data_transformation_artifact: DataTransformationArtifact):
-        self.model_evaluator_config = ModelEvaluatorConfig
+        self.model_evaluator_config = model_evaluator_config
 
-        self.model_trainer_artifact = ModelTrainerArtifact
+        self.model_trainer_artifact = model_trainer_artifact
 
         self.data_transformation_artifact = data_transformation_artifact
 
-    def get_best_model(self, best_model_path:str):
+    def get_best_model(self, best_model_dir_path:str):
         try:
             logging.info("Entered get_best_model method")
             if not os.path.exists:
                 return None
 
-            if len(os.listdir(best_model_path)) == 0:
+            if len(os.listdir(best_model_dir_path)) == 0:
                 return None
-            elif len(os.listdir(best_model_path)) > 1:
-                raise Exception(f"best model directory: {best_model_path} contains more than one model")
+            elif len(os.listdir(best_model_dir_path)) > 1:
+                raise Exception(f"best model directory: {best_model_dir_path} contains more than one model")
             else:
-                trained_model = PipelineModel.load(f"{best_model_path}*")
+                best_model = os.listdir(best_model_dir_path)[0]
 
-                return trained_model
+                best_model_path = os.path.join(best_model_dir_path, best_model)
+
+                best_model_loaded = PipelineModel.load(f"{best_model_path}*")
+
+                return best_model_loaded
             
         except Exception as e:
             logging.error(e)
@@ -50,15 +54,17 @@ class ModelEvaluator:
 
             best_model_acc, best_model_pred = None, None
 
-            best_model = self.get_best_model(self.model_evaluator_config.best_model_path)
+            best_model = self.get_best_model(self.model_evaluator_config.bestmodel_dir_path)
 
             is_accepted = False
 
             if best_model != None:
                 best_model_acc, best_model_pred = calculate_classification_metric(best_model, test_data, ENCODED_TARGET_COL_NAME)
 
-                if best_model_acc < trained_model_acc:
+                if best_model_acc > THRESHOLD_SCORE:
                     is_accepted = True
+            else:
+                is_accepted = True
 
             return ModelEvaluationResponse(is_accepted, best_model_acc, trained_model_acc, best_model_pred, trained_model_pred)
 
@@ -75,9 +81,9 @@ class ModelEvaluator:
 
             model_eval_response = self.evaluate_model(model, test_df)
 
-            eval_report = model_eval_response.to_dict()
+            eval_report = model_eval_response._asdict()
 
-            eval_report = {key : value for key, value in eval_report.items() if key not in [trained_model_pred, best_model_pred]}
+            eval_report = {key : value for key, value in eval_report.items() if key not in ['trained_model_pred', 'best_model_pred']}
 
             write_yaml_file(self.model_evaluator_config.metric_file_path, eval_report)
 

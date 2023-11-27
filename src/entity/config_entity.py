@@ -58,11 +58,13 @@ class DataTransformationConfig:
 
     pipeline_file_path = os.path.join(datatransformation_dir_path, TRANSFORMATION_OBJECT_DIR, PIPELINE_FILE_NAME)
 
+    target_mapping_file_path = os.path.join(CONFIG_DIR, TARGET_MAPPING_FILE_NAME)
+
 @dataclass
 class ModelTrainerConfig:
-    #modeltrainer_dir_path = os.path.join(training_pipeline_config.artifacr_dir_path, MODEL_TRAINER_DIR)
+    modeltrainer_dir_path = os.path.join(training_pipeline_config.artifacr_dir_path, MODEL_TRAINER_DIR)
 
-    #os.makedirs(modeltrainer_dir_path, exist_ok=True)
+    os.makedirs(modeltrainer_dir_path, exist_ok=True)
     
     trainedmodel_dir_path = os.path.join(training_pipeline_config.model_dir_path, TRAINED_MODEL_DIR)
 
@@ -91,6 +93,12 @@ class ModelEvaluatorConfig:
     os.makedirs(metric_dir_path, exist_ok=True)
 
     metric_file_path = os.path.join(metric_dir_path, METRICS_FILE_NAME)
+
+@dataclass
+class ModelPusherConfig:
+    trainedmodels_dir_path = os.path.join(training_pipeline_config.model_dir_path, TRAINED_MODELS_DIR)
+
+    os.makedirs(trainedmodels_dir_path, exist_ok=True)
 
 
     

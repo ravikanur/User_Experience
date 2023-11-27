@@ -10,6 +10,8 @@ from src.entity.config_entity import DataTransformationConfig
 from src.entity.artifact_entity import DataValidationArtifact, DataTransformationArtifact
 from src.constants.training_pipeline import *
 
+from src.utils.main_utils import write_yaml_file
+
 from src.logger import logging
 from src.exception import UserException
 
@@ -20,7 +22,36 @@ class DataTransformation:
 
         self.data_validation_artifact = data_validation_artifact
 
-    def transform_data(self, train: DataFrame, test: DataFrame):
+    def encode_target_data(self, data: DataFrame, inputcol: str, outputcol:str) -> DataFrame:
+        try:
+            logging.info("Entered encode_target_data method")
+            string_indexer = StringIndexer(inputCol=inputcol, outputCol=outputcol)
+
+            res_df = string_indexer.fit(data).transform(data)
+
+            return res_df
+        except Exception as e:
+            logging.error(e)
+            raise UserException(e, sys)
+
+    def write_target_mapping(self, data: DataFrame, key_col:str, val_col:str):
+        try:
+            logging.info("Entered write_traget_mapping method")
+            map_df_list = data.select(*[key_col, val_col]).dropDuplicates().collect()
+
+            pair = {}
+
+            for df_row in map_df_list:
+                pair[df_row[0]] = df_row[1]
+            
+            write_yaml_file(self.data_transformation_config.target_mapping_file_path, pair)
+
+            logging.info(f"target column mapping has been written in path: {self.data_transformation_config.target_mapping_file_path}")
+        except Exception as e:
+            logging.error(e)
+            raise UserException(e, sys)
+
+    def transform_data(self, train: DataFrame):
         try:
             logging.info("Entered transform_data method")
             stages = []
@@ -37,9 +68,9 @@ class DataTransformation:
             
             stages.append(scalar)
             
-            string_indexer3 = StringIndexer(inputCol=TARGET_COLUMN_NAME, outputCol=ENCODED_TARGET_COL_NAME)
+            #string_indexer3 = StringIndexer(inputCol=TARGET_COLUMN_NAME, outputCol=ENCODED_TARGET_COL_NAME)
             
-            stages.append(string_indexer3)
+            #stages.append(string_indexer3)
             
             pipeline = Pipeline(stages=stages)
 
@@ -47,11 +78,11 @@ class DataTransformation:
 
             train_transformed = transformed.transform(train)
 
-            test_transformed = transformed.transform(test)
+            #test_transformed = transformed.transform(test)
 
             logging.info("transformation of train and test data done.")
 
-            return train_transformed, test_transformed, transformed
+            return train_transformed, transformed
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
@@ -60,7 +91,8 @@ class DataTransformation:
                                 categorical_cols: list)-> DataFrame:
         try:
             logging.info("Entered prepare_train_test_data method")
-            train, test = data.randomSplit([train_percentage, 1 - train_percentage], seed=42)
+            #train, test = data.randomSplit([train_percentage, 1 - train_percentage], seed=42)
+            train, test = data.randomSplit([train_percentage, 1 - train_percentage])
 
             empty_rdd = spark_session.sparkContext.emptyRDD()
 
@@ -95,17 +127,21 @@ class DataTransformation:
             logging.info("Entered initiate_data_transformation method")
             user_df = spark_session.read.csv(f"{self.data_validation_artifact.data_validated_file_path}*", header=True, inferSchema=True)
 
+            user_df = self.encode_target_data(user_df, TARGET_COLUMN_NAME, ENCODED_TARGET_COL_NAME)
+
+            self.write_target_mapping(user_df, ENCODED_TARGET_COL_NAME, TARGET_COLUMN_NAME)
+
             train, test = self.prepare_train_test_data(user_df, 0.7, LABEL_FEATURES + [TARGET_COLUMN_NAME])
 
-            train, test, preprocessor = self.transform_data(train, test)
+            train_transformed, preprocessor = self.transform_data(train)
 
-            train , test = train.select(*[FEATURE_COLS_NAME, ENCODED_TARGET_COL_NAME]), test.select(*[FEATURE_COLS_NAME, ENCODED_TARGET_COL_NAME])
+            train_transformed = train_transformed.select(*[FEATURE_COLS_NAME, ENCODED_TARGET_COL_NAME])
 
-            train.write.mode('append').parquet(self.data_transformation_config.train_file_path)
+            train_transformed.write.mode('overwrite').parquet(self.data_transformation_config.train_file_path)
 
-            test.write.mode('append').parquet(self.data_transformation_config.test_file_path)
+            test.write.mode('overwrite').parquet(self.data_transformation_config.test_file_path)
 
-            preprocessor.save(self.data_transformation_config.pipeline_file_path)
+            preprocessor.write().overwrite().save(self.data_transformation_config.pipeline_file_path)
 
             logging.info(f"processed and saved train to {self.data_transformation_config.train_file_path}\n\
                         test to {self.data_transformation_config.test_file_path}\n\

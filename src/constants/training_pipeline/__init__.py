@@ -55,6 +55,8 @@ VALID_FILE_NAME: str = 'valid_user_df.parquet'
 
 PIPELINE_FILE_NAME: str = 'data_transform_pipeline.pkl'
 
+TARGET_MAPPING_FILE_NAME: str = 'target_column_mapping.yaml'
+
 LABEL_FEATURES:list = ['specifictime']
 
 SCALAR_FEATURES: list = ['indicator1', 'indicator2', 'indicator3', 'indicator4', 'indicator5', 
@@ -70,6 +72,8 @@ ENCODED_TARGET_COL_NAME:str = 'label'
 MODEL_TRAINER_DIR: str = 'model_trainer'
 
 TRAINED_MODEL_DIR: str = 'trained_models'
+
+TRAINED_MODEL_NAME: str = 'UE_model'
 
 BASE_TRAINING_SCORE: float = 0.7
 
@@ -104,3 +108,9 @@ BEST_MODEL_DIR_NAME: str = 'best_model'
 METRICS_FILE_NAME: str = 'metrics.yaml'
 
 TEST_PRED_FILE_NAME: str = 'User_test_pred.csv'
+
+THRESHOLD_SCORE: float = 0.85
+
+# model pusher parameters
+
+TRAINED_MODELS_DIR: str = 'trained_models'

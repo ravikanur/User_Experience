@@ -10,14 +10,7 @@ from src.entity.artifact_entity import DataIngestionArtifact, DataValidationArti
 from src.logger import logging
 from src.exception import UserException
 
-class DataValidation:
-    def __init__(self, data_validation_config: DataValidationConfig,
-                data_ingestion_artifact:  DataIngestionArtifact):
-        self.data_validation_config = data_validation_config
-
-        self.data_ingestion_artifact = data_ingestion_artifact
-
-    def add_mean_indicator_col_per_user(self, df: DataFrame, 
+def add_mean_indicator_col_per_user(df: DataFrame, 
                                         groupby_column:str, mean_result_cols:list) -> DataFrame:
         try:
             logging.info(f"Entered add_mean_indicator_col_per_user method")
@@ -25,7 +18,9 @@ class DataValidation:
 
             df_all = df
 
-            df_indicator = df_all.select(*mean_result_cols)
+            req_cols = mean_result_cols + [groupby_column]
+
+            df_indicator = df_all.select(*req_cols)
 
             df_indicator_avg = df_indicator.groupBy(col(groupby_column)).mean()
 
@@ -52,6 +47,13 @@ class DataValidation:
             logging.error(e)
             raise UserException(e, sys)
 
+class DataValidation:
+    def __init__(self, data_validation_config: DataValidationConfig,
+                data_ingestion_artifact:  DataIngestionArtifact):
+        self.data_validation_config = data_validation_config
+
+        self.data_ingestion_artifact = data_ingestion_artifact
+
     def initiate_data_validation(self)-> DataValidationArtifact:
         try:
             logging.info("Entered initiate_data_validation method")
@@ -66,7 +68,7 @@ class DataValidation:
 
             logging.info(f"count of df after removal of outliers is {user_df.count()}")
 
-            user_df = self.add_mean_indicator_col_per_user(user_df, USER_COLUMN_NAME, INDICATOR_COLS + [USER_COLUMN_NAME])
+            user_df = add_mean_indicator_col_per_user(user_df, USER_COLUMN_NAME, INDICATOR_COLS)
 
             user_df = user_df.drop(*COLS_TO_BE_REMOVED)
 

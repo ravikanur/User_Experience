@@ -60,13 +60,15 @@ class ModelTrainer:
     def save_model(self, model, trained_model_dir_path):
         try:
             logging.info("Entered save_model method")
-            trained_model_name = self.model_trainer_config.model_class
+            #trained_model_name = self.model_trainer_config.model_class
             
-            trained_model_path = os.path.join(trained_model_dir_path, f"{trained_model_name}.pkl")
+            trained_model_path = os.path.join(trained_model_dir_path, TRAINED_MODEL_NAME)
 
-            model.save(trained_model_path)
+            model.write().overwrite().save(trained_model_path)
 
             logging.info(f"trained model saved to {trained_model_path}")
+
+            return trained_model_path
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
@@ -75,6 +77,8 @@ class ModelTrainer:
         try:
             logging.info("Entered initiate_model_training method")
             train = spark_session.read.parquet(f"{self.data_transformation_artifact.train_file_path}*")
+
+            transformation_pipeline = PipelineModel.load(f"{self.data_transformation_artifact.pipeline_file_path}*")
 
             model = self.get_class_from_name(self.model_trainer_config.model_module, 
                                             self.model_trainer_config.model_class)
@@ -86,11 +90,15 @@ class ModelTrainer:
 
             trained_model = self.train_model(model, train)
 
-            self.save_model(trained_model, self.model_trainer_config.trainedmodel_dir_path)
+            new_stage = transformation_pipeline.stages + trained_model.stages
 
-            logging.info(f"trained model saved to {self.model_trainer_config.trainedmodel_dir_path}")
+            trained_model.stages = new_stage
 
-            return ModelTrainerArtifact(self.model_trainer_config.trainedmodel_dir_path)
+            trained_model_path = self.save_model(trained_model, self.model_trainer_config.modeltrainer_dir_path)
+
+            logging.info(f"trained model saved to {trained_model_path}")
+
+            return ModelTrainerArtifact(trained_model_path)
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)

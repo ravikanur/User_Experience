@@ -143,6 +143,9 @@ venv.bak/
 .dmypy.json
 dmypy.json
 
+#vscode
+.vscode
+
 # Pyre type checker
 .pyre/
 
@@ -161,8 +164,9 @@ cython_debug/
 
 #local
 logs/
-test.ipynb
 user_exp_artifact/
 user_downloaded_data/
 test/
 model/
+input/
+output/
