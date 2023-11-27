@@ -1,9 +1,11 @@
 name: workflow
 
 on: 
-  push:
+  pull_request:
     branches:
-      - master
+      - main
+    types:
+      - closed
 
 permissions:
   id-token: write
