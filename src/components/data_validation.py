@@ -2,6 +2,8 @@ import sys, re
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import lit, col
 
+from evidently.report import Report
+
 from src.config.spark_manager import spark_session
 from src.constants.training_pipeline import *
 from src.entity.config_entity import DataValidationConfig

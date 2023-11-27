@@ -11,8 +11,9 @@ permissions:
   id-token: write
   contents: read
 
-jobs:
+jobs: 
   deploy:
+    if: github.event.pull_request.merged == true
     name: deploy to EC2 on master branch push
     runs-on: ubuntu-latest
     steps:
