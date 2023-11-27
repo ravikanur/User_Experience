@@ -12,6 +12,8 @@ permissions:
   contents: read
 
 jobs:
+  build:
+    if: github.event.pull_request.merged == true
   deploy:
     name: deploy to EC2 on master branch push
     runs-on: ubuntu-latest
