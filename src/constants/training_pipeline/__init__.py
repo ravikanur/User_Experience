@@ -5,6 +5,8 @@ MODEL_DIR: str = 'model'
 
 CONFIG_DIR: str = 'config'
 
+DRIFT_REPORT_DIR:str = 'Drift_Report'
+
 CONFIG_FILE: str = 'config.yaml'
 
 MODEL_CONFIG_FILE: str ='model_config.yaml'
@@ -39,6 +41,12 @@ INDICATOR_COLS:list = ['indicator1', 'indicator2', 'indicator3', 'indicator4', '
 DATA_VALIDATED_FILE_NAME: str = 'User_final_data.csv'
 
 COLS_TO_BE_REMOVED:list = ['_c0','day', 'hour']
+
+DRIFT_TARGET_COLUMN_NAME:str = 'target'
+
+DATA_DRIFT_REPORT_NAME:str = 'data_drift_report'
+
+TARGET_DRIFT_REPORT_NAME:str = 'target_drift_report'
 
 ## data_transformation
 DATA_TRANSFORMATION_DIR: str = 'data_transformation'
