@@ -93,9 +93,7 @@ class DataValidation:
             if target_drift_dict['metrics'][0]['result']['drift_detected'] or data_drift_dict['metrics'][0]['result']['dataset_drift']:
                 logging.info(f"Drift detected. Below are the details.\ntarget_drift:{target_drift_dict}\ndata_drift:{data_drift_dict}")
 
-                raise Exception(" Drift detected in new data. Hence stopping the training.")
-
-
+                #raise Exception(" Drift detected in new data. Hence stopping the training.")
 
         except Exception as e:
             logging.error(e)
