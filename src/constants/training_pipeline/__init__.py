@@ -11,6 +11,8 @@ CONFIG_FILE: str = 'config.yaml'
 
 MODEL_CONFIG_FILE: str ='model_config.yaml'
 
+TRAINING_DB_TABLE_NAME: str = 'train_data'
+
 ## data_ingestion
 DATA_S3_URL:str = ''
 

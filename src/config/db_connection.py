@@ -14,16 +14,16 @@ from src.exception import UserException
 
 class MysqlConnection:
     def __init__(self):
-        self.host = 'database-1.c9o5ipc0qopt.ap-south-1.rds.amazonaws.com'
+        self.host = 'database-1.cl1zfq2hnk5g.ap-south-1.rds.amazonaws.com'
         self.port = 3306
         self.user = 'admin'
-        self.passwd = 'wfaZh92h'
-        self.db = 'sensor_temp'
+        self.passwd = 'mJ0p9VeW7rXsqCzvIDrl'
+        self.db = 'User_Exeperience'
 
     def connect_mysql(self):
         return pymysql.Connect(host=self.host, port=self.port, user=self.user, passwd=self.passwd, db=self.db)
 
-def insert_train_data_db(data: DataFrame, table_name: str, field_mapping: dict, 
+def insert_data_db(data: DataFrame, table_name: str, field_mapping: dict, 
                         null_replace_value: dict = None) -> None:
     try:
         logging.info("Entered insert_train_data_db method")

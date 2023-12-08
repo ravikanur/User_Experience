@@ -7,3 +7,45 @@ train_test_split_config:
 model_config:
   model: model_0
   is_val: False
+
+db_mapping_train:
+  specifictime: specifictime
+  indicator1: indicator1
+  indicator2: indicator2
+  indicator3: indicator3
+  indicator4: indicator4
+  indicator5: indicator5
+  indicator6: indicator6
+  indicator7: indicator7
+  indicator8: indicator8
+  user: user
+  result: result
+  indicator1_avg: indicator1_avg
+  indicator2_avg: indicator2_avg
+  indicator3_avg: indicator3_avg
+  indicator4_avg: indicator4_avg
+  indicator5_avg: indicator5_avg
+  indicator6_avg: indicator6_avg
+  indicator7_avg: indicator7_avg
+  indicator8_avg: indicator8_avg
+
+  db_mapping_pred:
+  specifictime: specifictime
+  indicator1: indicator1
+  indicator2: indicator2
+  indicator3: indicator3
+  indicator4: indicator4
+  indicator5: indicator5
+  indicator6: indicator6
+  indicator7: indicator7
+  indicator8: indicator8
+  user: user
+  pred: pred_value
+  indicator1_avg: indicator1_avg
+  indicator2_avg: indicator2_avg
+  indicator3_avg: indicator3_avg
+  indicator4_avg: indicator4_avg
+  indicator5_avg: indicator5_avg
+  indicator6_avg: indicator6_avg
+  indicator7_avg: indicator7_avg
+  indicator8_avg: indicator8_avg

@@ -1,6 +1,6 @@
 import sys, re, os
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import lit, col
+from pyspark.sql.functions import lit, col, unix_timestamp
 
 from evidently.report import Report
 from evidently.metric_preset import DataDriftPreset, TargetDriftPreset

@@ -1,5 +1,7 @@
 import os, sys
 
+from src.config.spark_manager import spark_session
+
 from src.entity.config_entity import (DataIngestionConfig, DataValidationConfig, 
                                     DataTransformationConfig, ModelTrainerConfig,
                                     ModelEvaluatorConfig, ModelPusherConfig, TrainingPipelineConfig)
@@ -12,6 +14,9 @@ from src.components.data_transformation import DataTransformation
 from src.components.model_trainer import ModelTrainer
 from src.components.model_evaluator import ModelEvaluator
 from src.components.model_pusher import ModelPusher
+from src.constants.training_pipeline import *
+
+from src.config.db_connection import insert_data_db
 
 from src.logger import logging
 from src.exception import UserException
@@ -115,6 +120,16 @@ class TrainingPipeline:
             
             model_pusher_config = ModelPusherConfig()
             self.initiate_model_pusher(model_evaluation_config, model_pusher_config, model_trainer_config)
+
+            valid_df = spark_session.read.csv(f"{self.data_validation_artifact.data_validated_file_path}*", header=True, inferSchema=True)
+
+            db_train_mapping = self.training_pipeline_config.config['db_mapping_train']
+
+            insert_data_db(valid_df, TRAINING_DB_TABLE_NAME, db_train_mapping)
+
+            logging.info("Training completed successfully")
+
+            return
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
