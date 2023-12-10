@@ -121,11 +121,13 @@ class TrainingPipeline:
             model_pusher_config = ModelPusherConfig()
             self.initiate_model_pusher(model_evaluation_config, model_pusher_config, model_trainer_config)
 
-            valid_df = spark_session.read.csv(f"{self.data_validation_artifact.data_validated_file_path}*", header=True, inferSchema=True)
+            user_df = spark_session.read.parquet(f"{data_validation_artifact.data_validated_file_path}*")
+
+            user_df = user_df.drop(*[COLS_TO_BE_REMOVED_DB])
 
             db_train_mapping = self.training_pipeline_config.config['db_mapping_train']
 
-            insert_data_db(valid_df, TRAINING_DB_TABLE_NAME, db_train_mapping)
+            insert_data_db(user_df, TRAINING_DB_TABLE_NAME, db_train_mapping)
 
             logging.info("Training completed successfully")
 

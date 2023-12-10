@@ -33,7 +33,11 @@ DATA_INGESTED_FILE_NAME: str = 'User_Experience_data.csv'
 ## data_validation
 DATA_VALIDATION_DIR: str = 'data_validation'
 
-DATE_VAL_STRING: str = 'specifictime'
+DATE_VAL_COL: str = 'specifictime'
+
+SECOND_COL:str = 'second'
+
+MINUTE_COL:str = 'minute'
 
 INDICATOR_THRESHOLD: int = 2000
 
@@ -42,7 +46,7 @@ INDICATOR_COLS:list = ['indicator1', 'indicator2', 'indicator3', 'indicator4', '
 
 DATA_VALIDATED_FILE_NAME: str = 'User_final_data.csv'
 
-COLS_TO_BE_REMOVED:list = ['_c0','day', 'hour']
+COLS_TO_BE_REMOVED_DB:list = ['_c0','day', 'hour', MINUTE_COL, SECOND_COL]
 
 DRIFT_TARGET_COLUMN_NAME:str = 'target'
 
@@ -51,6 +55,8 @@ DATA_DRIFT_REPORT_NAME:str = 'data_drift_report'
 TARGET_DRIFT_REPORT_NAME:str = 'target_drift_report'
 
 ## data_transformation
+COLS_TO_BE_REMOVED:list = ['_c0', 'specifictime']
+
 DATA_TRANSFORMATION_DIR: str = 'data_transformation'
 
 TRANSFORMED_DATA_DIR:str = 'data'
@@ -67,12 +73,12 @@ PIPELINE_FILE_NAME: str = 'data_transform_pipeline.pkl'
 
 TARGET_MAPPING_FILE_NAME: str = 'target_column_mapping.yaml'
 
-LABEL_FEATURES:list = ['specifictime']
+#LABEL_FEATURES:list = ['specifictime']
 
-SCALAR_FEATURES: list = ['indicator1', 'indicator2', 'indicator3', 'indicator4', 'indicator5', 
+SCALAR_FEATURES: list = ['minute', 'indicator1', 'indicator2', 'indicator3', 'indicator4', 'indicator5', 
                         'indicator6', 'indicator7', 'indicator8', 'indicator1_avg', 'indicator2_avg',
                          'indicator3_avg', 'indicator4_avg', 'indicator5_avg', 'indicator6_avg', 
-                         'indicator7_avg', 'indicator8_avg']
+                         'indicator7_avg', 'indicator8_avg', 'second', 'day', 'hour']
 
 FEATURE_COLS_NAME: str = 'feature'
 

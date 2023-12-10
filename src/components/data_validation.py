@@ -1,6 +1,6 @@
 import sys, re, os
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import lit, col, unix_timestamp
+from pyspark.sql.functions import lit, col, minute, second, dayofyear
 
 from evidently.report import Report
 from evidently.metric_preset import DataDriftPreset, TargetDriftPreset
@@ -108,8 +108,6 @@ class DataValidation:
             for column in INDICATOR_COLS:
                 user_df = user_df.filter(col(column) < INDICATOR_THRESHOLD)
 
-            user_df = user_df.withColumn(DATE_VAL_STRING, col(DATE_VAL_STRING).cast('string'))
-
             logging.info(f"count of df after removal of outliers is {user_df.count()}")
 
             ref_df = None
@@ -119,9 +117,13 @@ class DataValidation:
 
             user_df = add_mean_indicator_col_per_user(user_df, USER_COLUMN_NAME, INDICATOR_COLS)
 
-            user_df = user_df.drop(*COLS_TO_BE_REMOVED)
+            #user_df_db = user_df.drop(*[COLS_TO_BE_REMOVED_DB])
 
-            user_df.write.mode('append').csv(self.data_validation_config.data_validated_file_path, header=True)
+            user_df = user_df.withColumn(MINUTE_COL, minute(col(DATE_VAL_COL))).withColumn(SECOND_COL, second(col(DATE_VAL_COL))).withColumn('day', dayofyear(col(DATE_VAL_COL)))
+
+            #user_df = user_df.drop(*COLS_TO_BE_REMOVED)
+
+            user_df.write.mode('overwrite').parquet(self.data_validation_config.data_validated_file_path)
 
             return DataValidationArtifact(self.data_validation_config.data_validated_file_path)
 

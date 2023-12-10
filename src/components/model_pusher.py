@@ -39,7 +39,9 @@ class ModelPusher:
                 #os.rename(os.path.join(curr_dir_path, model), new_model_path)
                 shutil.copytree(os.path.join(curr_dir_path, model), new_model_path)
 
-                shutil.copytree(new_model_path, dest_dir_path)
+                shutil.copytree(new_model_path, dest_dir_path, dirs_exist_ok=True)
+
+                os.rmdir(path)
 
                 return new_model_path
         except Exception as e:
