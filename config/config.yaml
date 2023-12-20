@@ -28,6 +28,7 @@ db_mapping_train:
   indicator6_avg: indicator6_avg
   indicator7_avg: indicator7_avg
   indicator8_avg: indicator8_avg
+  submit_date: submit_date
 
   db_mapping_pred:
   specifictime: specifictime
@@ -49,3 +50,4 @@ db_mapping_train:
   indicator6_avg: indicator6_avg
   indicator7_avg: indicator7_avg
   indicator8_avg: indicator8_avg
+  submit_date: submit_date

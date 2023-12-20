@@ -123,7 +123,7 @@ class TrainingPipeline:
 
             user_df = spark_session.read.parquet(f"{data_validation_artifact.data_validated_file_path}*")
 
-            user_df = user_df.drop(*[COLS_TO_BE_REMOVED_DB])
+            user_df = user_df.drop(*COLS_TO_BE_REMOVED_DB)
 
             db_train_mapping = self.training_pipeline_config.config['db_mapping_train']
 

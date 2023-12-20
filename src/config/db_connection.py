@@ -8,6 +8,7 @@ from pyspark.sql.functions import current_timestamp, count, when, isnan, col
 from src.config.spark_manager import spark_session
 from src.constants.training_pipeline import *
 from src.constants.prediction_pipeline import *
+from src.entity.config_entity import TrainingPipelineConfig
 
 from src.logger import logging
 from src.exception import UserException
@@ -27,15 +28,15 @@ def insert_data_db(data: DataFrame, table_name: str, field_mapping: dict,
                         null_replace_value: dict = None) -> None:
     try:
         logging.info("Entered insert_train_data_db method")
-        con = MysqlConnection()
+        sql_con = MysqlConnection()
 
-        sql_con = con.connect_mysql()
+        con = sql_con.connect_mysql()
 
-        cursor = sql_con.cursor()
+        cursor = con.cursor()
 
         data = data.withColumn('submit_date', current_timestamp())
 
-        null_val_per_col_count = data.select([count(when(isnan(c) | col(c).isNull(), c)).alias(c) for c in data.columns]).collect()
+        null_val_per_col_count = data.select([count(when(isnan(c) | col(c).isNull(), c)).alias(c) for c in data.columns if c != 'submit_date']).collect()
 
         null_val_per_col_count_dict = null_val_per_col_count[0].asDict()
 
@@ -63,15 +64,54 @@ def insert_data_db(data: DataFrame, table_name: str, field_mapping: dict,
         values = []
 
         rows = data.collect()
-
+        logging.info(f"No of rows that will be inserted into db is {len(rows)}")
         for row in rows:
             row_list = tuple(row.asDict().values())
 
             values.append(row_list)
         
+        logging.info(f"Count of values {len(values)}")
+        logging.info("running the sql query")
         cursor.executemany(sql_query, values)
-
+        logging.info("Committing the query")
         con.commit()
+        logging.info("Successfully inserted data inot DB")
     except Exception as e:
         logging.error(e)
         raise UserException(e, sys)
+
+def load_data_db(db_name, table_name, sql_query=None):
+    try:
+        logging.info("Entered load_data_db method")
+        sql = spark_session.sql
+
+        user_df = spark_session.read.format("jdbc")\
+                                    .option("driver", "com.mysql.cj.jdbc.Driver")\
+                                    .option("url", "jdbc:mysql://database-1.cl1zfq2hnk5g.ap-south-1.rds.amazonaws.com?useSSL=FALSE&nullCatalogMeansCurrent=true&zeroDateTimeBehavior=convertToNull")\
+                                    .option("dbtable", f"{db_name}.{table_name}")\
+                                    .option("user", "admin")\
+                                    .option("password", "mJ0p9VeW7rXsqCzvIDrl")\
+                                    .load()
+
+        user_df.createOrReplaceTempView(table_name)
+
+        if sql_query is None:
+            user_df1 = sql(f"select * from {table_name}")
+        else:
+            user_df1 = sql(sql_query)
+        
+        logging.info(f"loaded data from db. Count is {user_df1.count()}")
+        return user_df1
+
+    except Exception as e:
+        logging.error(e)
+        raise UserException(e, sys)
+
+if __name__ == '__main__':
+    '''tp = TrainingPipelineConfig()
+    user_df = spark_session.read.parquet('./user_exp_artifact/data_validation/User_final_data.csv*')
+    logging.info(f"No of rows is {user_df.count()}")
+    user_df = user_df.drop(*COLS_TO_BE_REMOVED_DB)
+    db_train_mapping = tp.config['db_mapping_train']
+    insert_data_db(user_df, TRAINING_DB_TABLE_NAME, db_train_mapping)'''
+    load_data_db("User_Exeperience", "train_data")

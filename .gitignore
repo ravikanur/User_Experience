@@ -171,3 +171,5 @@ model/
 input/
 output/
 final_data2.csv
+mysql-connector-java-8.0.13.jar
+protobuf-java-3.6.1.jar

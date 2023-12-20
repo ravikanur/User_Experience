@@ -44,7 +44,7 @@ INDICATOR_THRESHOLD: int = 2000
 INDICATOR_COLS:list = ['indicator1', 'indicator2', 'indicator3', 'indicator4', 'indicator5', 
                         'indicator6', 'indicator7', 'indicator8']
 
-DATA_VALIDATED_FILE_NAME: str = 'User_final_data.csv'
+DATA_VALIDATED_FILE_NAME: str = 'User_final_data.parquet'
 
 COLS_TO_BE_REMOVED_DB:list = ['_c0','day', 'hour', MINUTE_COL, SECOND_COL]
 
