@@ -46,6 +46,8 @@ INDICATOR_COLS:list = ['indicator1', 'indicator2', 'indicator3', 'indicator4', '
 
 DATA_VALIDATED_FILE_NAME: str = 'User_final_data.parquet'
 
+DATA_VALIDATED_FILE_DB_NAME: str = 'User_final_data_db.parquet'
+
 COLS_TO_BE_REMOVED_DB:list = ['_c0','day', 'hour', MINUTE_COL, SECOND_COL]
 
 DRIFT_TARGET_COLUMN_NAME:str = 'target'

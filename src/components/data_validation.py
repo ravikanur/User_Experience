@@ -1,13 +1,14 @@
 import sys, re, os
 from datetime import datetime
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import lit, col, minute, second, dayofyear
+from pyspark.sql.functions import lit, col, hour, minute, second, dayofyear
 
 from evidently.report import Report
 from evidently.metric_preset import DataDriftPreset, TargetDriftPreset
 
 from src.config.spark_manager import spark_session
 from src.config.db_connection import load_data_db
+from src.utils.main_utils import rearrange_dataframe_columns
 from src.constants.training_pipeline import *
 from src.entity.config_entity import DataValidationConfig
 from src.entity.artifact_entity import DataIngestionArtifact, DataValidationArtifact
@@ -121,10 +122,13 @@ class DataValidation:
 
             ref_df = load_data_db(TRAINING_DB_TABLE_NAME)
 
+            ref_df_flag: bool = False
+
             if ref_df is not None:
                 ref_df = ref_df.withColumn(MINUTE_COL, minute(col(DATE_VAL_COL)))\
                                 .withColumn(SECOND_COL, second(col(DATE_VAL_COL)))\
                                 .withColumn('day', dayofyear(col(DATE_VAL_COL)))\
+                                .withColumn('hour', hour(col(DATE_VAL_COL)))\
                                 .drop('submit_date')
                 logging.info(ref_df.show())
                 
@@ -134,9 +138,14 @@ class DataValidation:
                 
                 self.detect_data_drift(user_df1, ref_df1)
 
-                user_df_training = user_df.union(ref_df)
+                user_df.write.mode('overwrite').parquet(self.data_validation_config.data_validated_file_db_path)
 
-                user_df_training.write.mode('overwrite').parquet()
+                ref_df = rearrange_dataframe_columns(user_df, ref_df)
+                logging.info(f"user_df columns: {user_df.columns}")
+                logging.info(f"ref_df columns: {ref_df.columns}")
+                user_df = user_df.union(ref_df)
+
+                ref_df_flag = True
 
             #user_df_db = user_df.drop(*[COLS_TO_BE_REMOVED_DB])
 
@@ -144,7 +153,8 @@ class DataValidation:
 
             user_df.write.mode('overwrite').parquet(self.data_validation_config.data_validated_file_path)
 
-            return DataValidationArtifact(self.data_validation_config.data_validated_file_path)
+            return DataValidationArtifact(self.data_validation_config.data_validated_file_path, 
+                                        self.data_validation_config.data_validated_file_db_path, ref_df_flag)
 
         except Exception as e:
             logging.error(e)

@@ -121,7 +121,10 @@ class TrainingPipeline:
             model_pusher_config = ModelPusherConfig()
             self.initiate_model_pusher(model_evaluation_config, model_pusher_config, model_trainer_config)
 
-            user_df = spark_session.read.parquet(f"{data_validation_artifact.data_validated_file_path}*")
+            if data_validation_artifact.ref_df_flag == True:
+                user_df = spark_session.read.parquet(f"{data_validation_artifact.data_validated_file_db_path}*")
+            else:
+                user_df = spark_session.read.parquet(f"{data_validation_artifact.data_validated_file_path}*")
 
             user_df = user_df.drop(*COLS_TO_BE_REMOVED_DB)
 

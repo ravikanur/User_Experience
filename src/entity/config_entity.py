@@ -50,6 +50,8 @@ class DataValidationConfig:
 
     data_validated_file_path = os.path.join(datavalidation_dir_path, DATA_VALIDATED_FILE_NAME)
 
+    data_validated_file_db_path = os.path.join(datavalidation_dir_path, DATA_VALIDATED_FILE_DB_NAME)
+
     data_drift_report_dir_path = os.path.join(training_pipeline_config.drift_report_dir_path, DATA_DRIFT_REPORT_DIR)
 
     os.makedirs(data_drift_report_dir_path, exist_ok=True)

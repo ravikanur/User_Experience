@@ -2,7 +2,7 @@ from collections import namedtuple
 
 DataIngestionArtifact = namedtuple("DataIngestionArtifact", "data_ingested_file_path")
 
-DataValidationArtifact = namedtuple("DataValidationArtifact", "data_validated_file_path")
+DataValidationArtifact = namedtuple("DataValidationArtifact", ["data_validated_file_path", "data_validated_file_db_path" , "ref_df_flag"])
 
 DataTransformationArtifact = namedtuple("DataTransformationArtifact", ["train_file_path", "test_file_path", "pipeline_file_path"])
 
