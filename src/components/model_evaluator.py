@@ -61,7 +61,7 @@ class ModelEvaluator:
             if best_model != None:
                 best_model_acc, best_model_pred = calculate_classification_metric(best_model, test_data, ENCODED_TARGET_COL_NAME)
 
-                if best_model_acc > THRESHOLD_SCORE:
+                if trained_model_acc > best_model_acc & trained_model_acc > THRESHOLD_SCORE:
                     is_accepted = True
             else:
                 is_accepted = True

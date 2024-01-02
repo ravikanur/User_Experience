@@ -16,6 +16,10 @@ class TrainingPipelineConfig:
 
     os.makedirs(model_dir_path, exist_ok=True)
 
+    drift_report_dir_path = os.path.join(from_root(), DRIFT_REPORT_DIR)
+
+    os.makedirs(drift_report_dir_path, exist_ok=True)
+
     config_file_path = os.path.join(from_root(), CONFIG_DIR, CONFIG_FILE)
 
     model_config_file_path = os.path.join(from_root(), CONFIG_DIR, MODEL_CONFIG_FILE)
@@ -45,6 +49,14 @@ class DataValidationConfig:
     os.makedirs(datavalidation_dir_path, exist_ok=True)
 
     data_validated_file_path = os.path.join(datavalidation_dir_path, DATA_VALIDATED_FILE_NAME)
+
+    data_drift_report_dir_path = os.path.join(training_pipeline_config.drift_report_dir_path, DATA_DRIFT_REPORT_DIR)
+
+    os.makedirs(data_drift_report_dir_path, exist_ok=True)
+
+    target_drift_report_dir_path = os.path.join(training_pipeline_config.drift_report_dir_path, TARGET_DRIFT_REPORT_DIR)
+
+    os.makedirs(target_drift_report_dir_path, exist_ok=True)
 
 @dataclass
 class DataTransformationConfig:

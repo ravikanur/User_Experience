@@ -50,6 +50,10 @@ COLS_TO_BE_REMOVED_DB:list = ['_c0','day', 'hour', MINUTE_COL, SECOND_COL]
 
 DRIFT_TARGET_COLUMN_NAME:str = 'target'
 
+DATA_DRIFT_REPORT_DIR:str = 'data_drift'
+
+TARGET_DRIFT_REPORT_DIR:str = 'target_drift'
+
 DATA_DRIFT_REPORT_NAME:str = 'data_drift_report'
 
 TARGET_DRIFT_REPORT_NAME:str = 'target_drift_report'

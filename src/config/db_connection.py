@@ -80,28 +80,35 @@ def insert_data_db(data: DataFrame, table_name: str, field_mapping: dict,
         logging.error(e)
         raise UserException(e, sys)
 
-def load_data_db(db_name, table_name, sql_query=None):
+def load_data_db(table_name, sql_query=None):
     try:
         logging.info("Entered load_data_db method")
-        sql = spark_session.sql
+        if sql_query is None:
+            sql_query = table_name
+        else:
+            sql_query = sql_query
 
         user_df = spark_session.read.format("jdbc")\
                                     .option("driver", "com.mysql.cj.jdbc.Driver")\
-                                    .option("url", "jdbc:mysql://database-1.cl1zfq2hnk5g.ap-south-1.rds.amazonaws.com?useSSL=FALSE&nullCatalogMeansCurrent=true&zeroDateTimeBehavior=convertToNull")\
-                                    .option("dbtable", f"{db_name}.{table_name}")\
+                                    .option("url", "jdbc:mysql://database-1.cl1zfq2hnk5g.ap-south-1.rds.amazonaws.com/User_Exeperience?useSSL=FALSE&nullCatalogMeansCurrent=true&zeroDateTimeBehavior=convertToNull")\
+                                    .option("dbtable", sql_query)\
                                     .option("user", "admin")\
                                     .option("password", "mJ0p9VeW7rXsqCzvIDrl")\
                                     .load()
 
-        user_df.createOrReplaceTempView(table_name)
+        #print(user_df.show())
+        if user_df.count() == 0:
+            return None
+
+        '''user_df.createOrReplaceTempView(table_name)
 
         if sql_query is None:
             user_df1 = sql(f"select * from {table_name}")
         else:
-            user_df1 = sql(sql_query)
+            user_df1 = sql(sql_query)'''
         
-        logging.info(f"loaded data from db. Count is {user_df1.count()}")
-        return user_df1
+        logging.info(f"loaded data from db. Count is {user_df.count()}")
+        return user_df
 
     except Exception as e:
         logging.error(e)
@@ -114,4 +121,5 @@ if __name__ == '__main__':
     user_df = user_df.drop(*COLS_TO_BE_REMOVED_DB)
     db_train_mapping = tp.config['db_mapping_train']
     insert_data_db(user_df, TRAINING_DB_TABLE_NAME, db_train_mapping)'''
-    load_data_db("User_Exeperience", "train_data")
+    df = load_data_db("train_data")
+    df.write.mode('overwrite').csv('./output.csv', header=True)

@@ -1,4 +1,5 @@
 import sys, re, os
+from datetime import datetime
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import lit, col, minute, second, dayofyear
 
@@ -6,6 +7,7 @@ from evidently.report import Report
 from evidently.metric_preset import DataDriftPreset, TargetDriftPreset
 
 from src.config.spark_manager import spark_session
+from src.config.db_connection import load_data_db
 from src.constants.training_pipeline import *
 from src.entity.config_entity import DataValidationConfig
 from src.entity.artifact_entity import DataIngestionArtifact, DataValidationArtifact
@@ -73,9 +75,9 @@ class DataValidation:
 
             data_drift_report.run(reference_data=ref_data_pd, current_data=cur_data_pd)
 
-            data_drift_report.save_json(f"{os.path.join(DRIFT_REPORT_DIR, DATA_DRIFT_REPORT_NAME)}.json")
+            data_drift_report.save_json(f"{os.path.join(self.data_validation_config.data_drift_report_dir_path, DATA_DRIFT_REPORT_NAME)}_{datetime.now().strftime('%Y%m%d%H%M%S')}.json")
 
-            data_drift_report.save_html(f"{os.path.join(DRIFT_REPORT_DIR, DATA_DRIFT_REPORT_NAME)}.html")
+            data_drift_report.save_html(f"{os.path.join(self.data_validation_config.data_drift_report_dir_path, DATA_DRIFT_REPORT_NAME)}_{datetime.now().strftime('%Y%m%d%H%M%S')}.html")
 
             data_drift_dict = data_drift_report.as_dict()
 
@@ -84,11 +86,11 @@ class DataValidation:
 
             target_drift_report.run(reference_data=ref_data_pd, current_data=cur_data_pd)
 
-            target_drift_report.save_json(f"{os.path.join(DRIFT_REPORT_DIR, TARGET_DRIFT_REPORT_NAME)}.json")
+            target_drift_report.save_json(f"{os.path.join(self.data_validation_config.target_drift_report_dir_path, TARGET_DRIFT_REPORT_NAME)}_{datetime.now().strftime('%Y%m%d%H%M%S')}.json")
 
-            target_drift_report.save_html(f"{os.path.join(DRIFT_REPORT_DIR, TARGET_DRIFT_REPORT_NAME)}.html")
+            target_drift_report.save_html(f"{os.path.join(self.data_validation_config.target_drift_report_dir_path, TARGET_DRIFT_REPORT_NAME)}_{datetime.now().strftime('%Y%m%d%H%M%S')}.html")
 
-            target_drift_dict = target_drift_dict.as_dict()
+            target_drift_dict = target_drift_report.as_dict()
 
             if target_drift_dict['metrics'][0]['result']['drift_detected'] or data_drift_dict['metrics'][0]['result']['dataset_drift']:
                 logging.info(f"Drift detected. Below are the details.\ntarget_drift:{target_drift_dict}\ndata_drift:{data_drift_dict}")
@@ -110,16 +112,33 @@ class DataValidation:
 
             logging.info(f"count of df after removal of outliers is {user_df.count()}")
 
-            ref_df = None
-
-            if ref_df is not None:
-                self.detect_data_drift(user_df, ref_df)
+            user_df = user_df.withColumn(MINUTE_COL, minute(col(DATE_VAL_COL)))\
+                            .withColumn(SECOND_COL, second(col(DATE_VAL_COL)))\
+                            .withColumn('day', dayofyear(col(DATE_VAL_COL)))
 
             user_df = add_mean_indicator_col_per_user(user_df, USER_COLUMN_NAME, INDICATOR_COLS)
+            logging.info(user_df.show())
+
+            ref_df = load_data_db(TRAINING_DB_TABLE_NAME)
+
+            if ref_df is not None:
+                ref_df = ref_df.withColumn(MINUTE_COL, minute(col(DATE_VAL_COL)))\
+                                .withColumn(SECOND_COL, second(col(DATE_VAL_COL)))\
+                                .withColumn('day', dayofyear(col(DATE_VAL_COL)))\
+                                .drop('submit_date')
+                logging.info(ref_df.show())
+                
+                ref_df1 = ref_df.drop(DATE_VAL_COL)
+
+                user_df1 = user_df.drop(DATE_VAL_COL)
+                
+                self.detect_data_drift(user_df1, ref_df1)
+
+                user_df_training = user_df.union(ref_df)
+
+                user_df_training.write.mode('overwrite').parquet()
 
             #user_df_db = user_df.drop(*[COLS_TO_BE_REMOVED_DB])
-
-            user_df = user_df.withColumn(MINUTE_COL, minute(col(DATE_VAL_COL))).withColumn(SECOND_COL, second(col(DATE_VAL_COL))).withColumn('day', dayofyear(col(DATE_VAL_COL)))
 
             #user_df = user_df.drop(*COLS_TO_BE_REMOVED)
 

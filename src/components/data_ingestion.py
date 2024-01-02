@@ -53,7 +53,7 @@ class DataIngestion:
             user_df: dataframe = self.read_downloaded_data([self.data_ingestion_config.ube_data_path, 
                                                 self.data_ingestion_config.uge_data_path])
             
-            user_df.write.mode('append').csv(self.data_ingestion_config.data_ingested_file_path, header=True)
+            user_df.write.mode('overwrite').csv(self.data_ingestion_config.data_ingested_file_path, header=True)
 
             logging.info(f"dataframe has been saved in path {self.data_ingestion_config.data_ingested_file_path}")
 
