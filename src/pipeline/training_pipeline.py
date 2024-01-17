@@ -86,13 +86,20 @@ class TrainingPipeline:
             raise UserException(e, sys)
 
     def initiate_model_pusher(self, model_evaluation_config: ModelEvaluatorConfig, 
-                            model_trainer_config: ModelTrainerConfig,
-                            model_trainer_artifact: ModelTrainerArtifact):
+                            model_pusher_config: ModelPusherConfig,
+                            model_trainer_config: ModelEvaluatorConfig):
         try:
-            model_pusher = ModelPusher(model_evaluation_config, model_trainer_config, model_trainer_artifact)
+            model_pusher = ModelPusher(model_evaluation_config, model_pusher_config, model_trainer_config)
 
             model_pusher_artifact = model_pusher.initiate_model_pushing()
-        except UserException as e:
+        except Exception as e:
+            logging.error(e)
+            raise UserException(e, sys)
+
+    def insert_train_data_db():
+        try:
+            logging.info("Entered insert_train_data_db method")
+        except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
 
