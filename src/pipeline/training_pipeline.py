@@ -96,9 +96,19 @@ class TrainingPipeline:
             logging.error(e)
             raise UserException(e, sys)
 
-    def insert_train_data_db():
+    def insert_train_data_db(data_validation_artifact: DataValidationArtifact):
         try:
             logging.info("Entered insert_train_data_db method")
+            if data_validation_artifact.ref_df_flag == True:
+                user_df = spark_session.read.parquet(f"{data_validation_artifact.data_validated_file_db_path}*")
+            else:
+                user_df = spark_session.read.parquet(f"{data_validation_artifact.data_validated_file_path}*")
+
+            user_df = user_df.drop(*COLS_TO_BE_REMOVED_DB)
+
+            db_train_mapping = self.training_pipeline_config.config['db_mapping_train']
+
+            insert_data_db(user_df, TRAINING_DB_TABLE_NAME, db_train_mapping)
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)

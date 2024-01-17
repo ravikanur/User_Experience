@@ -175,3 +175,5 @@ final_data2.csv
 output.csv
 mysql-connector-java-8.0.13.jar
 protobuf-java-3.6.1.jar
+airflow.cfg
+airflow.db

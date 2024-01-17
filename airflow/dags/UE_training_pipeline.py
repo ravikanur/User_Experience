@@ -96,3 +96,33 @@ with DAG(
             print("Training completed successfully")
         else:
             print("Training model Rejected")
+
+    def insert_train_data_db(**kwargs):
+        ti = kwargs['ti']
+
+        data_validation_artifact = ti.xcom_pull(task_ids='data_validation', key='data_validation_artifact')
+
+        model_evaluation_artifact = ti.xcom_pull(task_ids='model_evaluation', key='model_evaluation_artifact')
+
+        if model_evaluation_artifact.is_accepted == True:
+            training_pipeline.insert_train_data_db(data_validation_artifact)
+
+            print("Inserted train data to DB successfully")
+        else:
+            print("Trained model was rejected and hence train data was not inserted to DB")
+
+    data_ingestion = PythonOperator(task_id = 'data_ingestion', python_callable='data_ingestion')
+
+    data_validation = PythonOperator(task_id = 'data_validation', python_callable='data_validation')
+
+    data_transformation = PythonOperator(task_id = 'data_transformation', python_callable='data_transformation')
+
+    model_trainer = PythonOperator(task_id = 'model_trainer', python_callable='model_trainer')
+
+    model_evaluation = PythonOperator(task_id = 'model_evaluation', python_callable='model_evaluation')
+
+    model_pusher = PythonOperator(task_id = 'model_pusher', python_callable='model_pusher')
+
+    insert_train_data_db = PythonOperator(task_id = 'insert_train_data_db', python_callable='insert_train_data_db')
+
+    data_ingestion >> data_validation >> data_transformation >> model_trainer >> model_evaluation >> model_pusher >> insert_train_data_db
