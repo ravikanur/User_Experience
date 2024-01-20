@@ -3,3 +3,9 @@ os: linux
 files:
   - source: /*
     destination: /opt/UE/
+hooks:
+  BeforeInstall:
+    - location: stop.sh
+  AfterInstall:
+    - location: start.sh
+    
