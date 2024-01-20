@@ -3,6 +3,15 @@ os: linux
 files:
   - source: src
     destination: /opt/UE/
+  - source: airflow
+    destination: /opt/UE/
+  - source: .project-root
+    destination: /opt/UE/
+  - source: requirements.txt
+    destination: /opt/UE/
+  - source: setup.py
+    destination: /opt/UE/
+
 hooks:
   BeforeInstall:
     - location: stop.sh
