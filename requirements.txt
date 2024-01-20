@@ -6,5 +6,7 @@ from-root==1.0.2
 requests
 evidently
 PyYAML==6.0.1
+pymysql
+apache-airflow
 #tqdm
 -e .

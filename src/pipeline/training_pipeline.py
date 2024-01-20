@@ -1,5 +1,7 @@
 import os, sys
 
+from src.config.spark_manager import spark_session
+
 from src.entity.config_entity import (DataIngestionConfig, DataValidationConfig, 
                                     DataTransformationConfig, ModelTrainerConfig,
                                     ModelEvaluatorConfig, ModelPusherConfig, TrainingPipelineConfig)
@@ -12,6 +14,9 @@ from src.components.data_transformation import DataTransformation
 from src.components.model_trainer import ModelTrainer
 from src.components.model_evaluator import ModelEvaluator
 from src.components.model_pusher import ModelPusher
+from src.constants.training_pipeline import *
+
+from src.config.db_connection import insert_data_db
 
 from src.logger import logging
 from src.exception import UserException
@@ -81,13 +86,30 @@ class TrainingPipeline:
             raise UserException(e, sys)
 
     def initiate_model_pusher(self, model_evaluation_config: ModelEvaluatorConfig, 
-                            model_trainer_config: ModelTrainerConfig,
-                            model_trainer_artifact: ModelTrainerArtifact):
+                            model_pusher_config: ModelPusherConfig,
+                            model_trainer_config: ModelEvaluatorConfig):
         try:
-            model_pusher = ModelPusher(model_evaluation_config, model_trainer_config, model_trainer_artifact)
+            model_pusher = ModelPusher(model_evaluation_config, model_pusher_config, model_trainer_config)
 
             model_pusher_artifact = model_pusher.initiate_model_pushing()
-        except UserException as e:
+        except Exception as e:
+            logging.error(e)
+            raise UserException(e, sys)
+
+    def insert_train_data_db(data_validation_artifact: DataValidationArtifact):
+        try:
+            logging.info("Entered insert_train_data_db method")
+            if data_validation_artifact.ref_df_flag == True:
+                user_df = spark_session.read.parquet(f"{data_validation_artifact.data_validated_file_db_path}*")
+            else:
+                user_df = spark_session.read.parquet(f"{data_validation_artifact.data_validated_file_path}*")
+
+            user_df = user_df.drop(*COLS_TO_BE_REMOVED_DB)
+
+            db_train_mapping = self.training_pipeline_config.config['db_mapping_train']
+
+            insert_data_db(user_df, TRAINING_DB_TABLE_NAME, db_train_mapping)
+        except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
 
@@ -115,6 +137,21 @@ class TrainingPipeline:
             
             model_pusher_config = ModelPusherConfig()
             self.initiate_model_pusher(model_evaluation_config, model_pusher_config, model_trainer_config)
+
+            if data_validation_artifact.ref_df_flag == True:
+                user_df = spark_session.read.parquet(f"{data_validation_artifact.data_validated_file_db_path}*")
+            else:
+                user_df = spark_session.read.parquet(f"{data_validation_artifact.data_validated_file_path}*")
+
+            user_df = user_df.drop(*COLS_TO_BE_REMOVED_DB)
+
+            db_train_mapping = self.training_pipeline_config.config['db_mapping_train']
+
+            insert_data_db(user_df, TRAINING_DB_TABLE_NAME, db_train_mapping)
+
+            logging.info("Training completed successfully")
+
+            return
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)

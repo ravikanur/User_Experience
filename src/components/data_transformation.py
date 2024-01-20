@@ -56,11 +56,11 @@ class DataTransformation:
             logging.info("Entered transform_data method")
             stages = []
 
-            string_indexer1 = StringIndexer(inputCols=LABEL_FEATURES, outputCols=[f"en_{col}" for col in LABEL_FEATURES])
+            #string_indexer1 = StringIndexer(inputCols=LABEL_FEATURES, outputCols=[f"en_{col}" for col in LABEL_FEATURES])
             
-            stages.append(string_indexer1)
+            #stages.append(string_indexer1)
             
-            vector_assembler = VectorAssembler(inputCols=SCALAR_FEATURES + string_indexer1.getOutputCols(), outputCol="num_features")
+            vector_assembler = VectorAssembler(inputCols=SCALAR_FEATURES, outputCol="num_features")
             
             stages.append(vector_assembler)
             
@@ -125,13 +125,13 @@ class DataTransformation:
     def initiate_data_transformation(self)-> DataTransformationArtifact:
         try:
             logging.info("Entered initiate_data_transformation method")
-            user_df = spark_session.read.csv(f"{self.data_validation_artifact.data_validated_file_path}*", header=True, inferSchema=True)
+            user_df = spark_session.read.parquet(f"{self.data_validation_artifact.data_validated_file_path}*")
 
             user_df = self.encode_target_data(user_df, TARGET_COLUMN_NAME, ENCODED_TARGET_COL_NAME)
 
             self.write_target_mapping(user_df, ENCODED_TARGET_COL_NAME, TARGET_COLUMN_NAME)
 
-            train, test = self.prepare_train_test_data(user_df, 0.7, LABEL_FEATURES + [TARGET_COLUMN_NAME])
+            train, test = self.prepare_train_test_data(user_df, 0.7, [TARGET_COLUMN_NAME])
 
             train_transformed, preprocessor = self.transform_data(train)
 
