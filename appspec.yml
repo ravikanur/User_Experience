@@ -4,7 +4,7 @@ files:
   - source: src
     destination: /opt/UE/
   - source: airflow
-    destination: /opt/UE/
+    destination: /opt/UE/airflow/
   - source: .project-root
     destination: /opt/UE/
   - source: requirements.txt
