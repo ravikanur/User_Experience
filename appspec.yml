@@ -1,11 +1,10 @@
 version: 0.0
 os: linux
 files:
-  - source: /*
+  - source: src
     destination: /opt/UE/
 hooks:
   BeforeInstall:
     - location: stop.sh
   AfterInstall:
     - location: start.sh
-    
