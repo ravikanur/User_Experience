@@ -41,7 +41,7 @@ db_mapping_train:
   indicator7: indicator7
   indicator8: indicator8
   user: user
-  pred: pred_value
+  pred: prediction
   indicator1_avg: indicator1_avg
   indicator2_avg: indicator2_avg
   indicator3_avg: indicator3_avg

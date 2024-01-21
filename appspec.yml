@@ -11,6 +11,8 @@ files:
     destination: /opt/UE/
   - source: setup.py
     destination: /opt/UE/
+  - source: main.py
+    destination: /opt/UE/
 
 hooks:
   BeforeInstall:

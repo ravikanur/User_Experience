@@ -15,11 +15,11 @@ from src.exception import UserException
 
 class MysqlConnection:
     def __init__(self):
-        self.host = 'database-1.cl1zfq2hnk5g.ap-south-1.rds.amazonaws.com'
+        self.host = 'database-1.crg02eic2yup.ap-south-1.rds.amazonaws.com'
         self.port = 3306
         self.user = 'admin'
-        self.passwd = 'mJ0p9VeW7rXsqCzvIDrl'
-        self.db = 'User_Exeperience'
+        self.passwd = '9oAKmVX3ClGlM2EYP4Cb'
+        self.db = 'User_Experience'
 
     def connect_mysql(self):
         return pymysql.Connect(host=self.host, port=self.port, user=self.user, passwd=self.passwd, db=self.db)
@@ -90,10 +90,10 @@ def load_data_db(table_name, sql_query=None):
 
         user_df = spark_session.read.format("jdbc")\
                                     .option("driver", "com.mysql.cj.jdbc.Driver")\
-                                    .option("url", "jdbc:mysql://database-1.cl1zfq2hnk5g.ap-south-1.rds.amazonaws.com/User_Exeperience?useSSL=FALSE&nullCatalogMeansCurrent=true&zeroDateTimeBehavior=convertToNull")\
+                                    .option("url", "jdbc:mysql://database-1.crg02eic2yup.ap-south-1.rds.amazonaws.com/User_Experience?useSSL=FALSE&nullCatalogMeansCurrent=true&zeroDateTimeBehavior=convertToNull")\
                                     .option("dbtable", sql_query)\
                                     .option("user", "admin")\
-                                    .option("password", "mJ0p9VeW7rXsqCzvIDrl")\
+                                    .option("password", "9oAKmVX3ClGlM2EYP4Cb")\
                                     .load()
 
         #print(user_df.show())
@@ -115,11 +115,11 @@ def load_data_db(table_name, sql_query=None):
         raise UserException(e, sys)
 
 if __name__ == '__main__':
-    '''tp = TrainingPipelineConfig()
-    user_df = spark_session.read.parquet('./user_exp_artifact/data_validation/User_final_data.csv*')
+    tp = TrainingPipelineConfig()
+    user_df = spark_session.read.parquet('./user_exp_artifact/data_validation/User_final_data.parquet*')
     logging.info(f"No of rows is {user_df.count()}")
     user_df = user_df.drop(*COLS_TO_BE_REMOVED_DB)
     db_train_mapping = tp.config['db_mapping_train']
-    insert_data_db(user_df, TRAINING_DB_TABLE_NAME, db_train_mapping)'''
-    df = load_data_db("train_data")
-    df.write.mode('overwrite').csv('./output.csv', header=True)
+    insert_data_db(user_df, TRAINING_DB_TABLE_NAME, db_train_mapping)
+    #df = load_data_db("train_data")
+    #df.write.mode('overwrite').csv('./output.csv', header=True)

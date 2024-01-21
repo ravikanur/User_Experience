@@ -1,12 +1,13 @@
 import os, sys, time
 
 from pyspark.sql import dataframe
-from pyspark.sql.functions import lit, col
+from pyspark.sql.functions import lit, col, minute, second, dayofyear, hour
 from pyspark.ml.pipeline import PipelineModel
 from src.config.spark_manager import spark_session
 from src.constants.prediction_pipeline import *
 from src.constants.training_pipeline import *
 from src.components.data_validation import add_mean_indicator_col_per_user
+from src.entity.config_entity import TrainingPipelineConfig
 
 from src.utils.main_utils import read_yaml_file
 
@@ -65,7 +66,11 @@ class PredictionPipeline:
             for column in INDICATOR_COLS:
                 final_df = final_df.filter(col(column) < INDICATOR_THRESHOLD)
 
-            final_df = final_df.withColumn(DATE_VAL_STRING, col(DATE_VAL_STRING).cast('string'))
+            final_df = final_df.withColumn(MINUTE_COL, minute(col(DATE_VAL_COL)))\
+                            .withColumn(SECOND_COL, second(col(DATE_VAL_COL)))\
+                            .withColumn('day', dayofyear(col(DATE_VAL_COL)))\
+                            .withColumn('hour', hour(col(DATE_VAL_COL)))
+
 
             final_df = add_mean_indicator_col_per_user(final_df, USER_COLUMN_NAME, INDICATOR_COLS)
 
@@ -81,10 +86,15 @@ class PredictionPipeline:
                 pred = model.transform(temp_df)
 
                 target_mapping = read_yaml_file(TARGET_MAPPING_FILE_PATH)
+                logging.info(pred.count())
 
                 pred1 = pred.select('prediction').rdd.map(lambda x: (target_mapping[x.prediction], )).toDF(['prediction', ])
+                logging.info("Here")
+                logging.info(pred1.count())
 
-                #pred1 = pred1.dropDuplicates()
+                pred = pred.withColumn('prediction1', pred1.prediction)
+                logging.info("Here1")
+
                 pred1 = pred1.groupBy('prediction').count().sort(col('count').desc())
 
                 if pred1.count() > 1:
@@ -103,6 +113,15 @@ class PredictionPipeline:
             end_time = time.time()
             #pred1.write.mode('append').parquet('./output/pred.parquet')
             pred_df.coalesce(1).write.mode('append').csv('./output/pred.csv', header=True)
+
+            pred = pred.select(*[DB_COLUMNS])
+
+            training_pipeline_config = TrainingPipelineConfig()
+
+            db_pred_mapping = training_pipeline_config.config['db_mapping_pred']
+
+            insert_data_db(pred, PREDICTION_DB_TABLE_NAME, db_pred_mapping)
+
             logging.info(f"Total prediction time took to predict {i} users is {round((end_time - start_time), 2)}")
         except Exception as e:
             logging.error(e)
