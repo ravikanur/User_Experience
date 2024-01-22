@@ -23,17 +23,17 @@ class PredictionPipeline:
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
-    def get_valid_invalid_files(self):
+    def get_valid_invalid_files(self, path):
         try:
             logging.info("Entered get_valid_invalid_files method")
-            user_list = os.listdir(INPUT_DIR)
+            user_list = os.listdir(path)
 
             user_name_list = []
 
             valid_files, invalid_files = [], []
 
             for i, user in enumerate(user_list):
-                user_path = os.path.join(INPUT_DIR, user)
+                user_path = os.path.join(path, user)
 
                 user_name = user.split(sep='.')[0]
 
@@ -59,11 +59,11 @@ class PredictionPipeline:
         except Exception as e:
             logging.error(e)
             raise UserException(e, sys)
-    def initiate_batch_prediction(self):
+    def initiate_batch_prediction(self, path):
         try:
             logging.info("Entered initiate_batch_prediction method")
             start_time = time.time()
-            valid_files, invalid_files, final_df, user_name_list = self.get_valid_invalid_files()
+            valid_files, invalid_files, final_df, user_name_list = self.get_valid_invalid_files(path)
 
             for column in INDICATOR_COLS:
                 final_df = final_df.filter(col(column) < INDICATOR_THRESHOLD)
@@ -132,4 +132,4 @@ class PredictionPipeline:
 
 if __name__ == '__main__':
     pred_pipeline = PredictionPipeline()
-    pred_pipeline.initiate_batch_prediction()
+    pred_pipeline.initiate_batch_prediction('input')

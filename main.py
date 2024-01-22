@@ -18,6 +18,9 @@ def initiate_training():
 def initiate_prediction(path: str):
     try:
         logging.info("Entered initiate_prediction method")
+        pred_pipeline = PredictionPipeline()
+
+        pred_pipeline.initiate_batch_prediction(path)
     except Exception as e:
         logging.error(UserException(e, sys))
         raise UserException(e, sys)
@@ -40,3 +43,4 @@ if __name__ == '__main__':
     #parser.add_argument("--a", type=str, help="Type of action to be taken. 0 for prediction, 1 for training")
     parser.add_argument("--p", type=str, help="Path of the input data")
     args = parser.parse_args()
+    initiate_prediction(args.p)
