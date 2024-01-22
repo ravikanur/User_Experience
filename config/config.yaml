@@ -30,7 +30,7 @@ db_mapping_train:
   indicator8_avg: indicator8_avg
   submit_date: submit_date
 
-  db_mapping_pred:
+db_mapping_pred:
   specifictime: specifictime
   indicator1: indicator1
   indicator2: indicator2
@@ -41,7 +41,7 @@ db_mapping_train:
   indicator7: indicator7
   indicator8: indicator8
   user: user
-  pred: prediction
+  prediction: pred_value
   indicator1_avg: indicator1_avg
   indicator2_avg: indicator2_avg
   indicator3_avg: indicator3_avg

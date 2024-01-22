@@ -4,10 +4,12 @@ from pyspark.sql import dataframe
 from pyspark.sql.functions import lit, col, minute, second, dayofyear, hour
 from pyspark.ml.pipeline import PipelineModel
 from src.config.spark_manager import spark_session
+from src.config.db_connection import insert_data_db
 from src.constants.prediction_pipeline import *
 from src.constants.training_pipeline import *
 from src.components.data_validation import add_mean_indicator_col_per_user
 from src.entity.config_entity import TrainingPipelineConfig
+from src.utils.main_utils import join_dataframe
 
 from src.utils.main_utils import read_yaml_file
 
@@ -74,7 +76,7 @@ class PredictionPipeline:
 
             final_df = add_mean_indicator_col_per_user(final_df, USER_COLUMN_NAME, INDICATOR_COLS)
 
-            final_df = final_df.drop(*COLS_TO_BE_REMOVED)
+            #final_df = final_df.drop(*COLS_TO_BE_REMOVED)
 
             #final_df = final_df.withColumn(TARGET_COLUMN_NAME, lit('UBE'))
 
@@ -89,11 +91,10 @@ class PredictionPipeline:
                 logging.info(pred.count())
 
                 pred1 = pred.select('prediction').rdd.map(lambda x: (target_mapping[x.prediction], )).toDF(['prediction', ])
-                logging.info("Here")
-                logging.info(pred1.count())
 
-                pred = pred.withColumn('prediction1', pred1.prediction)
-                logging.info("Here1")
+                pred = pred.drop('prediction')
+
+                pred = join_dataframe(pred, pred1)
 
                 pred1 = pred1.groupBy('prediction').count().sort(col('count').desc())
 
@@ -115,6 +116,8 @@ class PredictionPipeline:
             pred_df.coalesce(1).write.mode('append').csv('./output/pred.csv', header=True)
 
             pred = pred.select(*[DB_COLUMNS])
+            
+            logging.info(f"Prediction cols for DB is {pred.columns}")
 
             training_pipeline_config = TrainingPipelineConfig()
 
