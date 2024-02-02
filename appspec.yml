@@ -2,14 +2,16 @@ version: 0.0
 os: linux
 files:
   - source: src
-    destination: /opt/UE/
+    destination: /opt/UE/src/
   - source: airflow
-    destination: /opt/UE/
+    destination: /opt/UE/airflow/
   - source: .project-root
     destination: /opt/UE/
   - source: requirements.txt
     destination: /opt/UE/
   - source: setup.py
+    destination: /opt/UE/
+  - source: main.py
     destination: /opt/UE/
 
 hooks:
