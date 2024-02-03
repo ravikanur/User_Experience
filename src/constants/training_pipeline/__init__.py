@@ -22,7 +22,7 @@ USER_COLUMN_NAME:str = 'user'
 
 DATA_INGESTION_DIR = 'data_ingestion'
 
-DATA_DOWNLOAD_DIR = 'user_downloaded_data'
+DATA_DOWNLOAD_DIR = 'user_download_data'
 
 UGE_DIR: str = 'UGE'
 
