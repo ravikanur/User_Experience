@@ -38,7 +38,15 @@ class DataIngestionConfig:
 
     uge_data_path = os.path.join(DATA_DOWNLOAD_DIR, UGE_DIR)
 
+    os.makedirs(uge_data_path, exist_ok=True)
+
+    uge_data_url = f"s3://{DATA_DOWNLOAD_DIR}/{UGE_DIR}"
+
     ube_data_path = os.path.join(DATA_DOWNLOAD_DIR, UBE_DIR)
+
+    os.makedirs(ube_data_path, exist_ok=True)
+    
+    ube_data_url = f"s3://{DATA_DOWNLOAD_DIR}/{UBE_DIR}"
 
     data_ingested_file_path = os.path.join(dataingestion_dir_path, DATA_INGESTED_FILE_NAME)
 

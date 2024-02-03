@@ -8,12 +8,15 @@ from src.constants.training_pipeline import *
 from src.entity.config_entity import DataIngestionConfig
 from src.entity.artifact_entity import DataIngestionArtifact
 
+from src.cloud_storage.s3_syncer import s3_syncer
+
 from src.logger import logging
 from src.exception import UserException
 
 class DataIngestion:
     def __init__(self, data_ingestion_config: DataIngestionConfig):
         self.data_ingestion_config = data_ingestion_config
+        self.s3_syncer = s3_syncer()
 
     def read_downloaded_data(self, paths:list):
         try:
@@ -50,6 +53,12 @@ class DataIngestion:
     def initiate_data_ingestion(self) -> DataIngestionArtifact :
         try:
             logging.info("Entered initiate_data_ingestion method")
+            self.s3_syncer.sync_folder_from_s3(self.data_ingestion_config.ube_data_path, 
+                                                self.data_ingestion_config.ube_data_url)
+
+            self.s3_syncer.sync_folder_from_s3(self.data_ingestion_config.uge_data_path, 
+                                                self.data_ingestion_config.uge_data_url)
+                                                                                
             user_df: dataframe = self.read_downloaded_data([self.data_ingestion_config.ube_data_path, 
                                                 self.data_ingestion_config.uge_data_path])
             
